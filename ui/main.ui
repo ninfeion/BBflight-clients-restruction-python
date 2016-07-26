@@ -41,7 +41,7 @@
            </size>
           </property>
           <property name="text">
-           <string/>
+           <string>Address Setting</string>
           </property>
          </widget>
         </item>

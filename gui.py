@@ -11,7 +11,7 @@ from PyQt5.QtGui import QIcon
 
 def main():
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon('/bbproject.png'))
+    app.setWindowIcon(QIcon('bbproject.png'))
 
     main_window = MainUI()
     main_window.show()
