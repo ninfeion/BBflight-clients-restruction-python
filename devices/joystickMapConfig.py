@@ -15,7 +15,7 @@ from utils.singleton import Singleton
 
 __author__ = 'Ninfeion'
 
-class JoystickManager(metaclass=Singleton):
+class JoystickConfig(metaclass=Singleton):
     configsDir = os.path.dirname(__file__)
 
     def __init__(self):
@@ -26,7 +26,7 @@ class JoystickManager(metaclass=Singleton):
         """ Get the button and axis mappings for an input device. """
         try:
             idx = self._listOfConfigs.index(configname)
-            return self._inputConfig[idx]
+            return self._inputConfigs[idx]
         except:
             return None
 
@@ -38,50 +38,49 @@ class JoystickManager(metaclass=Singleton):
         except:
             return None
 
-    def getListOfConfigs(self):
+    def readConfigFile(self):
         """ Reload the configurations from file. """
         try:
             configs = [os.path.basename(fileDir) for fileDir in
-                       glob.glob(self.configsDir + '/[A-Za-z]*.json')]
+                       glob.glob(self.configsDir + '/*.json')]
             # configs is a list of config file name
-            self._inputConfig = []
-            self._inputSettings = []
             self._listOfConfigs = []
+            self._inputSettings = []
+            self._inputConfigs = []
+
             for conf in configs:
                 logging.debug("Parsing [%s]", conf)
                 jsonData = open(self.configsDir + "/%s" % conf)
                 data = json.load(jsonData)
-                newInputDevice = {}
-                newInputSettings = {'updateperiod': 10, 'springythrottle': True}
-                for s in data['inputconfig']['inputdevice']:
-                    if s == 'axis':
+
+                newInputSettings = {}
+                newInputConfigs = {}
+
+                for sub in data['inputconfig']['inputdevice']:
+                    if sub == 'updateperiod':
+                        newInputConfigs['updateperiod'] = data['inputconfig'][
+                            'inputdevice']['updateperiod']
+                    if sub == 'name':
+                        newInputConfigs['name'] = data['inputconfig'][
+                            'inputdevice']['name']
+
+                    if sub == 'axis':
                         for a in data['inputconfig']['inputdevice']['axis']:
-                            # ['axis'] including a list that is iterable
-                            axis = {}
-                            axis['scale'] = a['scale']
-                            axis['offset'] = a['offset'] if 'offset' in a else 0.0
-                            axis['type'] = a['type']
-                            axis['key'] = a['key']
-                            axis['name'] = a['name']
-                            try:
-                                ids = a['ids']
-                            except:
-                                ids = [a['id']]
-                            for id in ids:
-                                locaxis = copy.deepcopy(axis)
-                                if 'ids' in a:
-                                    if id == a['ids'][0]:
-                                        locaxis['scale'] = locaxis['scale'] * -1
-                                locaxis['id'] = id
-                                # 'type'-'id' defines unique index for axis
-                                index = '%s-%d' % (a['type'], id)
-                                newInputDevice[index] = locaxis
-                    else:
-                        newInputSettings[s] = data['inputconfig']['inputdevice'][s]
-                self._inputConfig.append(newInputDevice)
+                            index = '%s-%d' % (a['type'],a['id'])
+                            newInputSettings[index] = a
+                    if sub == 'hat':
+                        for h in data['inputconfig']['inputdevice']['hat']:
+                            index = '%s-%d' % (h['type'],h['id'])
+                            newInputSettings[index] = h
+                    if sub == 'button':
+                        for b in data['inputconfig']['inputdevice']['button']:
+                            index = '%s-%d' % (b['type'],b['id'])
+                            newInputSettings[index] = b
+
                 self._inputSettings.append(newInputSettings)
+                self._inputConfigs.append(newInputConfigs)
+                self._listOfConfigs.append(conf[:-5]) # cut out the extension name
                 jsonData.close()
-                self._listOfConfigs.append(conf[:-5])
         except Exception as e:
             logging.warning('Exception while parsing inputconfig file: %s', e)
         return self._listOfConfigs

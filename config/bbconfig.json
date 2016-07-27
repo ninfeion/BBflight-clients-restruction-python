@@ -8,6 +8,7 @@
     "slew_limit": 45,
     "slew_rate": 30,
     "trim_roll": 0.0,
+    "trim_yaw": 0.0,
     "max_thrust": 80,
     "min_thrust": 25,
     "max_yaw": 200,

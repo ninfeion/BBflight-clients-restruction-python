@@ -8,6 +8,8 @@ from PyQt5 import uic
 from PyQt5.QtCore import pyqtSignal
 
 import ui
+from devices.joystick import JoystickReader
+from devices.joystickMapConfig import JoystickConfig
 
 controller_tab_class = uic.loadUiType(ui.modulePath + '/tabs/ControllerTab.ui')[0]
 
@@ -19,6 +21,8 @@ class ControllerTab(Tab, controller_tab_class):
     _serialPortListUpdate = pyqtSignal(object)
     _serialPortSelect = pyqtSignal(str)
 
+    connectionFinishSignal = pyqtSignal(str)
+    disconnectedSignal = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -26,6 +30,37 @@ class ControllerTab(Tab, controller_tab_class):
 
         self.tabName = 'Interface Setting'
 
+        self.joystickScan.clicked.connect
+        self.joystickSelect.activated[str].connect
+
+        self.detectRoll.clicked.connect
+        self.detectPitch.clicked.connect
+        self.detectYaw.clicked.connect
+        self.detectThrust.clicked.connect
+        self.detectPitchPos.clicked.connect
+        self.detectPitchNeg.clicked.connect
+        self.detechRollPos.clicked.connect
+        self.detectRollNeg.clicked.connect
+        self.detectAltHold.clicked.connect
+        self.detectKillswitch.clicked.connect
+        self.detectExitapp.clicked.connect
+        self.detectResevered1.clicked.connect
+        self.detectResevered2.clicked.connect
+        self.detectResevered3.clicked.connect
+
+        self.configSave.clicked.connect
+        self.configLoad.clicked.connect
+        self.configSetDefault.clicked.connect
+        self.configFileSelect.activated[str].connect
+
         self.splitter.setSizes([1000, 1])
+
+        self.serialPortScan.clicked.connect
+
+    def saveConfigFile(self):
+        configName = str(self.configFileSelect.currentText())
+
+        mapping = {'inputconfig': {'inputdevice': {'axis': [], 'hat': [],
+                                                   'button': []}}}
 
 
