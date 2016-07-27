@@ -22,12 +22,12 @@ class FlightTab(Tab, flight_tab_class):
     _altHoldDataUpdate = pyqtSignal(int, object)
     _baroDataUpdate = pyqtSignal(int, object)
 
-    _joystickUpdate = pyqtSignal(float, float, float, float)
+    _inputDataUpdate = pyqtSignal(float, float, float, float)
     _rpTrimUpdate = pyqtSignal(float, float)
 
     _emergencyStopUpdate = pyqtSignal(bool)
 
-    def __init__(self):
+    def __init__(self, joystick, serial):
         super().__init__()
         self.setupUi(self)
 
@@ -36,5 +36,15 @@ class FlightTab(Tab, flight_tab_class):
         self.attitudeIndicator = AttitudeIndicator()
         self.verticalLayout_3.addWidget(self.attitudeIndicator)
         self.splitter.setSizes([1000, 1])
+
+        self._inputDataUpdate.connect(self._inputDataUIUpdate)
+        joystick.inputUpdated.add_callback(self._inputDataUpdate.emit)
+
+    def _inputDataUIUpdate(self, thrust, yaw, roll, pitch):
+        self.targetThrust.setText('%0.2f' % thrust)
+        self.targetYaw.setText('%0.2f' % yaw)
+        self.targetRoll.setText('%0.2f' % roll)
+        self.targetPitch.setText('%0.2f' % pitch)
+
 
 

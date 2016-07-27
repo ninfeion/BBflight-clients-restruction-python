@@ -24,14 +24,17 @@ class ControllerTab(Tab, controller_tab_class):
     connectionFinishSignal = pyqtSignal(str)
     disconnectedSignal = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, joystick, serial):
         super().__init__()
         self.setupUi(self)
 
         self.tabName = 'Interface Setting'
 
-        self.joystickScan.clicked.connect
-        self.joystickSelect.activated[str].connect
+        self._deviceNum = None
+        self._inputDevice = joystick
+
+        self.joystickScan.clicked.connect(self.scanInputDevice)
+        self.joystickSelect.activated[str].connect(self)
 
         self.detectRoll.clicked.connect
         self.detectPitch.clicked.connect
@@ -56,6 +59,15 @@ class ControllerTab(Tab, controller_tab_class):
         self.splitter.setSizes([1000, 1])
 
         self.serialPortScan.clicked.connect
+
+    def scanInputDevice(self):
+        self._deviceNum = self._inputDevice.initDevice()
+        self.joystickSelect.clear()
+        if self._deviceNum:
+            for i in self._deviceNum:
+                self.joystickSelect.addItem(str(i))
+
+
 
     def saveConfigFile(self):
         configName = str(self.configFileSelect.currentText())

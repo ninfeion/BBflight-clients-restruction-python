@@ -32,7 +32,7 @@ the timer expires once started.
 
 import logging
 from threading import Thread
-from ui.utils.callbacks import Caller
+from utils.callbacks import Caller
 import time
 
 __author__ = 'Bitcraze AB'

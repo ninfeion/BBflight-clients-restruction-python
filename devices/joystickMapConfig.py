@@ -81,6 +81,7 @@ class JoystickConfig(metaclass=Singleton):
                 self._inputConfigs.append(newInputConfigs)
                 self._listOfConfigs.append(conf[:-5]) # cut out the extension name
                 jsonData.close()
+            return self._listOfConfigs
         except Exception as e:
             logging.warning('Exception while parsing inputconfig file: %s', e)
-        return self._listOfConfigs
+            return None

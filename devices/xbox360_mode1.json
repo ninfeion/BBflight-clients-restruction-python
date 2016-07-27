@@ -81,7 +81,7 @@
         {
           "type": "Input.BUTTON",
           "id": 6,
-          "key": "exit",
+          "key": "exitapp",
           "name": "exitapp"
         }
       ]

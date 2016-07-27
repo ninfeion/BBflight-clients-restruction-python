@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>857</width>
-    <height>642</height>
+    <height>680</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,12 +32,12 @@
             <item row="3" column="0">
              <widget class="QLabel" name="rollTrimLabel">
               <property name="text">
-               <string>Roll Trim</string>
+               <string>Roll Offset</string>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QDoubleSpinBox" name="pitchTrimDoubleSpinBox"/>
+             <widget class="QDoubleSpinBox" name="pitchOffset"/>
             </item>
             <item row="1" column="1">
              <widget class="QComboBox" name="thrustModeComboBox">
@@ -91,20 +91,20 @@
             <item row="2" column="0">
              <widget class="QLabel" name="yawTrimLabel">
               <property name="text">
-               <string>Yaw Trim</string>
+               <string>Yaw Offset</string>
               </property>
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QDoubleSpinBox" name="rollTrimDoubleSpinBox"/>
+             <widget class="QDoubleSpinBox" name="rollOffset"/>
             </item>
             <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="yawTrimDoubleSpinBox"/>
+             <widget class="QDoubleSpinBox" name="yawOffset"/>
             </item>
             <item row="4" column="0">
              <widget class="QLabel" name="pitchTrimLabel">
               <property name="text">
-               <string>Pitch Trim</string>
+               <string>Pitch Offset</string>
               </property>
              </widget>
             </item>
