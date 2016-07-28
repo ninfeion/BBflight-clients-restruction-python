@@ -2,6 +2,7 @@
 
 import logging
 import os
+import serial
 
 import ui.tabs
 import ui.widgets
@@ -22,28 +23,37 @@ __author__ = 'Ninfeion'
 __all__ = ['MainUI']
 
 main_window_class = uic.loadUiType(ui.modulePath + '/main.ui')[0]
+logging.basicConfig(level=logging.DEBUG)
 
 class MainUI(QtWidgets.QMainWindow, main_window_class):
+
+    batteryUiUpdate = pyqtSignal(int)
+    linkQualityUiUpdate = pyqtSignal(int)
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)
 
         self.bbFlight = RadioDevice()
-        self.bbCommander = Commander(self.bbFlight)
-
         self.bbJoystick = JoystickReader()
         self.bbJoystick.inputUpdated.add_callback(self.bbFlight.setControlPar)
         self.bbJoystick.altholdUpdated.add_callback(self.bbFlight.setAltHold)
         self.bbJoystick.eStopUpdated.add_callback(self.bbFlight.setEStop)
 
-        self.bbSerial = SerialApi()
+
+        self.bbSerial = serial.Serial()
+        self.bbCommander = Commander(self.bbFlight, self.bbSerial)
 
         # Load and connect tabs
         self.loadedTabs = {}
-        for tabClass in ui.tabs.AVAILABLE_TAB:
-            tab = tabClass(self.bbJoystick, self.bbSerial)
-            self.bbTabs.addTab(tab, tab.getTabName())
-            self.loadedTabs[tab.getTabName()] = tab
+        tab = ui.tabs.AVAILABLE_TAB[0](self.bbJoystick, self.bbCommander)
+        self.bbTabs.addTab(tab, tab.getTabName())
+        self.loadedTabs[tab.getTabName()] = tab
+        tab = ui.tabs.AVAILABLE_TAB[1](self.bbJoystick, self.bbSerial)
+        self.bbTabs.addTab(tab, tab.getTabName())
+        self.loadedTabs[tab.getTabName()] = tab
+
+
 
 
 

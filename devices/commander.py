@@ -3,9 +3,9 @@
 """ Create Or Analyze Commander Send Or Recieve. """
 
 import struct
-import queue
-
+import logging
 from utils.callbacks import Caller
+from utils.periodictimer import PeriodicTimer
 
 class RadioDevice(object):
     def __init__(self):
@@ -45,26 +45,65 @@ class RadioDevice(object):
     def setAltHold(self, enabled):
         self.altHold = enabled
 
+class ImuData(object):
+    yaw = 0.0
+    pitch = 0.0
+    roll = 0.0
+    thrust = 0
+
+    motor1 = 0
+    motor2 = 0
+    motor3 = 0
+    motor4 = 0
 
 class Commander(object):
 
-    def __init__(self, radiodev):
+    def __init__(self, radiodev, serialclass):
         self._radio = radiodev
-
+        self._bbSerial = serialclass
         self._isXMode = False
-        self._rxQueue = queue.Queue()
+
+        self.comRxTimer = PeriodicTimer(0.5, self.analyzeThread)
+        self.comTxTimer = PeriodicTimer(1.0, self.comSendThread)
 
         self.imuDataUpdate = Caller()
-        self.motorUpdate = Caller()
+        self.batteryUpdate = Caller()
+        self.linkQualityUpdate = Caller()
+        self.flightConnectionUpdate = Caller()
+
+
+
 
     def setXMode(self, enabled):
         self._isXMode = enabled
 
-    def queueUpdate(self, bytesdate):
+    def analyzeThread(self):
+        data = self._bbSerial.read(self._bbSerial.in_waiting)
+        if data:
+            try:
+                okdata = struct.unpack('<BBHfffBBBBHBBfBBBB', data)
+                if okdata[0] == 0xaa and okdata[-1] == 0xff:
+                    imuReturnData = ImuData()
+                    imuReturnData.thrust = okdata[2]
+                    imuReturnData.roll = okdata[3]
+                    imuReturnData.pitch = okdata[4]
+                    imuReturnData.yaw = okdata[5]
+                    imuReturnData.motor1 = okdata[6]
+                    imuReturnData.motor2 = okdata[7]
+                    imuReturnData.motor3 = okdata[8]
+                    imuReturnData.motor4 = okdata[9]
 
+                    flightConnection = okdata[-3]
+                    batteryData = okdata[10]
+                    linkQuality = okdata[11]
+                    self.imuDataUpdate.call(imuReturnData)
+                    self.batteryUpdate.call(batteryData)
+                    self.linkQualityUpdate.call(linkQuality)
+                    self.flightConnectionUpdate.call(flightConnection)
+            except:
+                logging.debug('Recieve Abandon')
 
-    def createCommander(self):
-
+    def comSendThread(self):
         if self._isXMode:
             roll, pitch = (0.707 * (self._radio.roll - self._radio.pitch),
                            0.707 * (self._radio.roll + self._radio.pitch))
@@ -80,10 +119,10 @@ class Commander(object):
                                  self._radio.devAdd[3],
                                  self._radio.devAdd[4],
                                  self._radio.tryConnect,
+                                 self._radio.thrust,
                                  roll,
                                  pitch,
                                  self._radio.yaw,
-                                 self._radio.thrust,
                                  self._radio.estop,
                                  self._radio.altHold,
                                  self._radio.pitchNeg,
@@ -94,11 +133,5 @@ class Commander(object):
                                  0x00,
                                  0xff,
                                  0xff)
-        return dataPacket
-
-    def analyzeCommander(self):
-
-
-        self.imuDataUpdate.call(thrust, yaw, roll, pitch)
-        self.motorUpdate.call(m1Val, m2Val, m3Val, m4Val)
+        self._bbSerial.write(dataPacket)
 

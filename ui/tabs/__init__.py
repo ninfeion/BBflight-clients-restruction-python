@@ -6,5 +6,5 @@ from .controllerTab import ControllerTab
 __author__ = 'Ninfeion'
 __all__ = []
 
-AVAILABLE_TAB = [ControllerTab,
-                 FlightTab]
+AVAILABLE_TAB = [FlightTab,
+                 ControllerTab]

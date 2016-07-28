@@ -37,7 +37,11 @@
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QDoubleSpinBox" name="pitchOffset"/>
+             <widget class="QDoubleSpinBox" name="pitchOffset">
+              <property name="maximum">
+               <double>180.000000000000000</double>
+              </property>
+             </widget>
             </item>
             <item row="1" column="1">
              <widget class="QComboBox" name="thrustModeComboBox">
@@ -96,10 +100,18 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QDoubleSpinBox" name="rollOffset"/>
+             <widget class="QDoubleSpinBox" name="rollOffset">
+              <property name="maximum">
+               <double>180.000000000000000</double>
+              </property>
+             </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="yawOffset"/>
+             <widget class="QDoubleSpinBox" name="yawOffset">
+              <property name="maximum">
+               <double>180.000000000000000</double>
+              </property>
+             </widget>
             </item>
             <item row="4" column="0">
              <widget class="QLabel" name="pitchTrimLabel">
@@ -112,6 +124,9 @@
              <widget class="QRadioButton" name="tenModeRadioButton">
               <property name="text">
                <string>+ Mode</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -157,7 +172,7 @@
              </widget>
             </item>
             <item row="5" column="0">
-             <widget class="QLabel" name="thrustLoweringSlewrateLabel">
+             <widget class="QLabel" name="thrustLoweringSlewRateLabel">
               <property name="text">
                <string>&lt;p style = &quot;line-height:1.0&quot;&gt;&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thrust lowering &lt;/p&gt;&lt;p&gt;slewrate(%/sec)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
@@ -182,12 +197,21 @@
               <property name="enabled">
                <bool>false</bool>
               </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
              </widget>
             </item>
             <item row="1" column="1">
              <widget class="QSpinBox" name="maxYawAngle">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
               </property>
              </widget>
             </item>
@@ -196,12 +220,18 @@
               <property name="enabled">
                <bool>false</bool>
               </property>
+              <property name="maximum">
+               <double>100.000000000000000</double>
+              </property>
              </widget>
             </item>
             <item row="3" column="1">
              <widget class="QDoubleSpinBox" name="minThrust">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="maximum">
+               <double>100.000000000000000</double>
               </property>
              </widget>
             </item>
@@ -210,12 +240,18 @@
               <property name="enabled">
                <bool>false</bool>
               </property>
+              <property name="maximum">
+               <double>100.000000000000000</double>
+              </property>
              </widget>
             </item>
             <item row="5" column="1">
-             <widget class="QDoubleSpinBox" name="thrustLoweringSlewrate">
+             <widget class="QDoubleSpinBox" name="thrustLoweringSlewRate">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="maximum">
+               <double>100.000000000000000</double>
               </property>
              </widget>
             </item>
@@ -382,10 +418,10 @@
               <item row="2" column="5" rowspan="5">
                <widget class="QProgressBar" name="m2ProgressBar">
                 <property name="maximum">
-                 <number>65535</number>
+                 <number>100</number>
                 </property>
                 <property name="value">
-                 <number>24</number>
+                 <number>0</number>
                 </property>
                 <property name="textVisible">
                  <bool>false</bool>
@@ -408,10 +444,10 @@
               <item row="2" column="4" rowspan="5">
                <widget class="QProgressBar" name="m1ProgressBar">
                 <property name="maximum">
-                 <number>65535</number>
+                 <number>100</number>
                 </property>
                 <property name="value">
-                 <number>24</number>
+                 <number>0</number>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
@@ -471,10 +507,10 @@
               <item row="2" column="7" rowspan="5">
                <widget class="QProgressBar" name="m4ProgressBar">
                 <property name="maximum">
-                 <number>65535</number>
+                 <number>100</number>
                 </property>
                 <property name="value">
-                 <number>24</number>
+                 <number>0</number>
                 </property>
                 <property name="textVisible">
                  <bool>false</bool>
@@ -487,10 +523,10 @@
               <item row="2" column="6" rowspan="5">
                <widget class="QProgressBar" name="m3ProgressBar">
                 <property name="maximum">
-                 <number>65535</number>
+                 <number>100</number>
                 </property>
                 <property name="value">
-                 <number>24</number>
+                 <number>0</number>
                 </property>
                 <property name="textVisible">
                  <bool>false</bool>

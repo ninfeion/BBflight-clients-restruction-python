@@ -8,12 +8,11 @@ import json
 import os
 import glob
 import logging
-import copy
 
-from utils.callbacks import Caller
 from utils.singleton import Singleton
 
 __author__ = 'Ninfeion'
+__all__ = []
 
 class JoystickConfig(metaclass=Singleton):
     configsDir = os.path.dirname(__file__)
@@ -58,24 +57,24 @@ class JoystickConfig(metaclass=Singleton):
 
                 for sub in data['inputconfig']['inputdevice']:
                     if sub == 'updateperiod':
-                        newInputConfigs['updateperiod'] = data['inputconfig'][
+                        newInputSettings['updateperiod'] = data['inputconfig'][
                             'inputdevice']['updateperiod']
                     if sub == 'name':
-                        newInputConfigs['name'] = data['inputconfig'][
+                        newInputSettings['name'] = data['inputconfig'][
                             'inputdevice']['name']
 
                     if sub == 'axis':
                         for a in data['inputconfig']['inputdevice']['axis']:
                             index = '%s-%d' % (a['type'],a['id'])
-                            newInputSettings[index] = a
+                            newInputConfigs[index] = a
                     if sub == 'hat':
                         for h in data['inputconfig']['inputdevice']['hat']:
                             index = '%s-%d' % (h['type'],h['id'])
-                            newInputSettings[index] = h
+                            newInputConfigs[index] = h
                     if sub == 'button':
                         for b in data['inputconfig']['inputdevice']['button']:
                             index = '%s-%d' % (b['type'],b['id'])
-                            newInputSettings[index] = b
+                            newInputConfigs[index] = b
 
                 self._inputSettings.append(newInputSettings)
                 self._inputConfigs.append(newInputConfigs)

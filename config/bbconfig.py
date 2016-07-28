@@ -12,11 +12,11 @@ __author__ = 'Ninfeion'
 __all__ = []
 
 class Config(metaclass=Singleton):
-    """ """
+
     def __init__(self):
         self._configDir = os.path.dirname(__file__) + '/bbconfig.json'
 
-        [self._readonly, self._writable, self.user_config] = self._readDistfile()
+        [self._readonly, self._writable] = self._readDistfile()
 
     def _readDistfile(self):
         """ Read the distribution config file containing the defaults """
@@ -46,9 +46,8 @@ class Config(metaclass=Singleton):
         else:
             logging.info("Couldn't get the parameter [%s]" % key)
 
-        if not isinstance(value, str):
-            value = str(value)
-
+        #if not isinstance(value, str):
+            #value = str(value)
         return value
 
     def saveFile(self):

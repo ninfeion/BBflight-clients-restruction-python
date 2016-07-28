@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = 'Ninfeion'
-__all__ =[]
+__all__ = []
 
 import sys
 
