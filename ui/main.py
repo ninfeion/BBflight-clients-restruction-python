@@ -9,6 +9,8 @@ from PyQt5 import uic
 from PyQt5 import QtWidgets
 from devices.joystick import JoystickReader
 from devices.serial import SerialApi
+from devices.commander import RadioDevice
+from devices.commander import Commander
 from PyQt5 import QtGui
 from PyQt5 import QtSerialPort
 from PyQt5.QtCore import pyqtSignal
@@ -26,7 +28,14 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         super().__init__()
         self.setupUi(self)
 
+        self.bbFlight = RadioDevice()
+        self.bbCommander = Commander(self.bbFlight)
+
         self.bbJoystick = JoystickReader()
+        self.bbJoystick.inputUpdated.add_callback(self.bbFlight.setControlPar)
+        self.bbJoystick.altholdUpdated.add_callback(self.bbFlight.setAltHold)
+        self.bbJoystick.eStopUpdated.add_callback(self.bbFlight.setEStop)
+
         self.bbSerial = SerialApi()
 
         # Load and connect tabs
