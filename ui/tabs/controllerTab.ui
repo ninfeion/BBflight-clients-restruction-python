@@ -104,10 +104,13 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>-100</number>
+                  <number>-180</number>
                  </property>
                  <property name="maximum">
-                  <number>100</number>
+                  <number>180</number>
+                 </property>
+                 <property name="tracking">
+                  <bool>true</bool>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -140,10 +143,13 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>-100</number>
+                  <number>-180</number>
                  </property>
                  <property name="maximum">
-                  <number>100</number>
+                  <number>180</number>
+                 </property>
+                 <property name="tracking">
+                  <bool>true</bool>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
@@ -216,8 +222,14 @@
                    <height>0</height>
                   </size>
                  </property>
+                 <property name="minimum">
+                  <number>0</number>
+                 </property>
                  <property name="maximum">
-                  <number>100</number>
+                  <number>2000</number>
+                 </property>
+                 <property name="tracking">
+                  <bool>true</bool>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
@@ -250,10 +262,13 @@
                   </size>
                  </property>
                  <property name="minimum">
-                  <number>-100</number>
+                  <number>-180</number>
                  </property>
                  <property name="maximum">
-                  <number>100</number>
+                  <number>180</number>
+                 </property>
+                 <property name="tracking">
+                  <bool>true</bool>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -417,7 +432,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QCheckBox" name="killsitch">
+            <widget class="QCheckBox" name="killswitch">
              <property name="enabled">
               <bool>false</bool>
              </property>

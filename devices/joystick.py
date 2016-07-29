@@ -41,7 +41,7 @@ class JoystickReader(object):
         self.exitAppUpdated = Caller()
         self.altholdUpdated = Caller()
 
-        self.readTimer = PeriodicTimer(0.01, self.readInput)
+        self.readTimer = PeriodicTimer(0.2, self.readInput)
 
     def initDevice(self):
         pygame.quit()
@@ -99,57 +99,83 @@ class JoystickReader(object):
             for d in rawData:
                 if d == 'axis':
                     for i in range(len(rawData[d])):
-                        try:
+                        if ('Input.AXIS-%d'%i) in self._mappingConfig:
                             if self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'thrust':
-                                inputData['thrust'] = rawData[d][i]
-                            if self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'yaw':
-                                inputData['yaw'] = rawData[d][i]
-                            if self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'roll':
-                                inputData['roll'] = rawData[d][i]
-                            if self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'pitch':
-                                inputData['pitch'] = rawData[d][i]
-                        except:
-                            pass
+                                if Config().get('thrustmode') == 'Linear':
+                                    inputData['thrust'] =  int(rawData[d][i] *1000 +1000)
+                                elif Config().get('thrustmode') == 'Quadratic':
+                                    if rawData[d][i] >= 0:
+                                        inputData['thrust'] = int(rawData[d][i] **2 * 1000 +1000)
+                                    else:
+                                        inputData['thrust'] = int(rawData[d][i] **2 * -1000 +1000)
+                            elif self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'yaw':
+                                inputData['yaw'] = rawData[d][i] * 180
+                                trimVal = Config().get("trim_yaw")
+                                if abs(inputData['yaw']) < trimVal:
+                                    inputData['yaw'] = 0
+                                else:
+                                    if inputData['yaw'] >= 0:
+                                        inputData['yaw'] -= trimVal
+                                    else:
+                                        inputData['yaw'] += trimVal
 
-                if d == 'hat':
-                    for i in range(len(rawData[d])):
-                        try:
-                            if self._mappingConfig['Input.HAT-%d'%i]['key'] == 'pitchNeg':
-                                inputData['pitchNeg'] = rawData[d][i]
-                            if self._mappingConfig['Input.HAT-%d'%i]['key'] == 'pitchPos':
-                                inputData['pitchPos'] = rawData[d][i]
-                            if self._mappingConfig['Input.HAT-%d'%i]['key'] == 'rollNeg':
-                                inputData['rollNeg'] = rawData[d][i]
-                            if self._mappingConfig['Input.HAT-%d'%i]['key'] == 'rollPos':
-                                inputData['rollPos'] = rawData[d][i]
-                            if self._mappingConfig['Input.HAT-%d'%i]['key'] == 'estop':
-                                inputData['estop'] = rawData[d][i]
-                            if self._mappingConfig['Input.HAT-%d'%i]['key'] == 'althold':
-                                inputData['althold'] = rawData[d][i]
-                            if self._mappingConfig['Input.HAT-%d'%i]['key'] == 'exitapp':
-                                inputData['exitapp'] = rawData[d][i]
-                        except:
-                            pass
+                            elif self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'roll':
+                                inputData['roll'] = - rawData[d][i] * 180
+                                trimVal = Config().get("trim_roll")
+                                if abs(inputData['roll']) < trimVal:
+                                    inputData['roll'] = 0
+                                else:
+                                    if inputData['roll'] >= 0:
+                                        inputData['roll'] -= trimVal
+                                    else:
+                                        inputData['roll'] += trimVal
+
+                            elif self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'pitch':
+                                inputData['pitch'] = rawData[d][i] * 180
+                                trimVal = Config().get("trim_pitch")
+                                if abs(inputData['pitch']) < trimVal:
+                                    inputData['pitch'] = 0
+                                else:
+                                    if inputData['pitch'] >= 0:
+                                        inputData['pitch'] -= trimVal
+                                    else:
+                                        inputData['pitch'] += trimVal
+
+                #if d == 'hat':
+                    #for i in range(len(rawData[d])):
+                        #if ('Input.HAT-%d'%i) in self._mappingConfig:
+                            #if self._mappingConfig['Input.HAT-%d'%i]['key'] == 'pitchNeg':
+                            #    inputData['pitchNeg'] = rawData[d][i]
+                            #elif self._mappingConfig['Input.HAT-%d'%i]['key'] == 'pitchPos':
+                            #    inputData['pitchPos'] = rawData[d][i]
+                            #elif self._mappingConfig['Input.HAT-%d'%i]['key'] == 'rollNeg':
+                            #    inputData['rollNeg'] = rawData[d][i]
+                            #elif self._mappingConfig['Input.HAT-%d'%i]['key'] == 'rollPos':
+                            #    inputData['rollPos'] = rawData[d][i]
+                            #elif self._mappingConfig['Input.HAT-%d'%i]['key'] == 'estop':
+                            #    inputData['estop'] = rawData[d][i]
+                            #elif self._mappingConfig['Input.HAT-%d'%i]['key'] == 'althold':
+                            #    inputData['althold'] = rawData[d][i]
+                            #elif self._mappingConfig['Input.HAT-%d'%i]['key'] == 'exitapp':
+                            #    inputData['exitapp'] = rawData[d][i]
 
                 if d == 'button':
                     for i in range(len(rawData[d])):
-                        try:
+                        if ('Input.BUTTON-%d'%i) in self._mappingConfig:
                             if self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'pitchNeg':
                                 inputData['pitchNeg'] = rawData[d][i]
-                            if self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'pitchPos':
+                            elif self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'pitchPos':
                                 inputData['pitchPos'] = rawData[d][i]
-                            if self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'rollNeg':
+                            elif self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'rollNeg':
                                 inputData['rollNeg'] = rawData[d][i]
-                            if self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'rollPos':
+                            elif self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'rollPos':
                                 inputData['rollPos'] = rawData[d][i]
-                            if self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'estop':
+                            elif self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'estop':
                                 inputData['estop'] = rawData[d][i]
-                            if self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'althold':
+                            elif self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'althold':
                                 inputData['althold'] = rawData[d][i]
-                            if self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'exitapp':
+                            elif self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'exitapp':
                                 inputData['exitapp'] = rawData[d][i]
-                        except:
-                            pass
 
             self.inputUpdated.call(inputData['thrust'],
                                    inputData['yaw'],

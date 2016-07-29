@@ -364,7 +364,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLineEdit" name="targetTrust">
+               <widget class="QLineEdit" name="targetThrust">
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>

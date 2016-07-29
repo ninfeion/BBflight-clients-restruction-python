@@ -23,7 +23,7 @@ class FlightTab(Tab, flight_tab_class):
     #_altHoldDataUpdate = pyqtSignal(int, object)
     #_baroDataUpdate = pyqtSignal(int, object)
 
-    _inputDataUpdate = pyqtSignal(float, float, float, float)
+    _inputDataUpdate = pyqtSignal(int, float, float, float)
     _rpTrimUpdate = pyqtSignal(float, float)
 
     _emergencyStopUpdate = pyqtSignal(bool)
@@ -160,13 +160,21 @@ class FlightTab(Tab, flight_tab_class):
         self.thrustLoweringSlewRate.setEnabled(STATE)
 
     def _inputDataUIUpdate(self, thrust, yaw, roll, pitch):
-        self.targetThrust.setText('%0.2f' % thrust)
-        self.targetYaw.setText('%0.2f' % yaw)
-        self.targetRoll.setText('%0.2f' % roll)
-        self.targetPitch.setText('%0.2f' % pitch)
+        self.targetThrust.setText(('%d' % thrust))
+        self.targetYaw.setText(('%0.2f' % yaw))
+        self.targetRoll.setText(('%0.2f' % roll))
+        self.targetPitch.setText(('%0.2f' % pitch))
+
+    def _imuLabelsEnabled(self, par):
+        self.actualLabel.setEnabled(par)
+        self.thrustLabel_1.setEnabled(par)
+        self.m1Label.setEnabled(par)
+        self.m2Label.setEnabled(par)
+        self.m3Label.setEnabled(par)
+        self.m4Label.setEnabled(par)
 
     def _imuUiUpdate(self, data):
-        self.actualThrust.setText('%0.2f' % data.thrust)
+        self.actualThrust.setText('%d' % data.thrust)
         self.actualPitch.setText('0.2f' % data.pitch)
         self.actualRoll.setText('0.2f' % data.roll)
         self.actualYaw.setText('0.2f' % data.yaw)

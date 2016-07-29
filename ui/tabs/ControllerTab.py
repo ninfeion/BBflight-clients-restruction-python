@@ -18,6 +18,8 @@ class ControllerTab(Tab, controller_tab_class):
 
     serialBrowserUpdate = pyqtSignal(str)
 
+    _axisDataUpdate = pyqtSignal(int, float, float, float)
+
     _devicesListUpdate = pyqtSignal(object)
     _devicesSelect = pyqtSignal(int)
     _serialPortListUpdate = pyqtSignal(object)
@@ -34,6 +36,22 @@ class ControllerTab(Tab, controller_tab_class):
 
         self._deviceNum = None
         self._inputDevice = joystick
+
+        self._axisIndicators = {"roll": self.rollAxisValue,
+                                "pitch": self.pitchAxisValue,
+                                "yaw": self.yawAxisValue,
+                                "thrust": self.thrustAxisValue}
+
+        self._hatButtonIndicators = {"pitchNeg": self.pitchNeg,
+                                    "pitchPos": self.pitchPos,
+                                    "rollNeg": self.rollNeg,
+                                    "rollPos": self.rollPos,
+                                    "althold": self.althold,
+                                    "killswitch": self.killswitch,
+                                    "exitapp": self.exitapp,
+                                    "resevered1": self.resevered1,
+                                    "resevered2": self.resevered2,
+                                    "resevered3": self.resevered3}
 
         self.joystickScan.clicked.connect(self.scanInputDevice)
         self.joystickSelect.activated[str].connect(self.selectInputDevice)
@@ -89,24 +107,25 @@ class ControllerTab(Tab, controller_tab_class):
 
     def joystickConfigSelect(self):
         self._inputDevice.setMapping(self.configFileSelect.currentText())
-
-        self.configSave.setEnabled(True)
-        self.detectRoll.setEnabled(True)
-        self.detectPitch.setEnabled(True)
-        self.detectYaw.setEnabled(True)
-        self.detectThrust.setEnabled(True)
-        self.detectPitchPos.setEnabled(True)
-        self.detectPitchNeg.setEnabled(True)
-        self.detectRollPos.setEnabled(True)
-        self.detectRollNeg.setEnabled(True)
-        self.detectAltHold.setEnabled(True)
-        self.detectKillswitch.setEnabled(True)
-        self.detectExitapp.setEnabled(True)
-        self.detectResevered1.setEnabled(True)
-        self.detectResevered2.setEnabled(True)
-        self.detectResevered3.setEnabled(True)
-
         self._inputDevice.readTimer.start()
+        self.detectButtonEnabled(True)
+
+    def detectButtonEnabled(self, par):
+        self.configSave.setEnabled(par)
+        self.detectRoll.setEnabled(par)
+        self.detectPitch.setEnabled(par)
+        self.detectYaw.setEnabled(par)
+        self.detectThrust.setEnabled(par)
+        self.detectPitchPos.setEnabled(par)
+        self.detectPitchNeg.setEnabled(par)
+        self.detectRollPos.setEnabled(par)
+        self.detectRollNeg.setEnabled(par)
+        self.detectAltHold.setEnabled(par)
+        self.detectKillswitch.setEnabled(par)
+        self.detectExitapp.setEnabled(par)
+        self.detectResevered1.setEnabled(par)
+        self.detectResevered2.setEnabled(par)
+        self.detectResevered3.setEnabled(par)
 
     def scanInputDevice(self):
         self._deviceNum = self._inputDevice.initDevice()

@@ -51,6 +51,8 @@ class ImuData(object):
     roll = 0.0
     thrust = 0
 
+    broVal = 0.0
+
     motor1 = 0
     motor2 = 0
     motor3 = 0
@@ -70,9 +72,7 @@ class Commander(object):
         self.batteryUpdate = Caller()
         self.linkQualityUpdate = Caller()
         self.flightConnectionUpdate = Caller()
-
-
-
+        self.haveBroDetected = Caller()
 
     def setXMode(self, enabled):
         self._isXMode = enabled
@@ -92,10 +92,14 @@ class Commander(object):
                     imuReturnData.motor2 = okdata[7]
                     imuReturnData.motor3 = okdata[8]
                     imuReturnData.motor4 = okdata[9]
-
-                    flightConnection = okdata[-3]
                     batteryData = okdata[10]
                     linkQuality = okdata[11]
+                    resevered = okdata[12]
+                    imuReturnData.broVal = okdata[13]
+                    haveBro = okdata[14]
+                    flightConnection = okdata[15]
+
+                    self.haveBroDetected.call(haveBro)
                     self.imuDataUpdate.call(imuReturnData)
                     self.batteryUpdate.call(batteryData)
                     self.linkQualityUpdate.call(linkQuality)
