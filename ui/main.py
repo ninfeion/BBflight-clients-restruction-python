@@ -40,7 +40,6 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         self.bbJoystick.altholdUpdated.add_callback(self.bbFlight.setAltHold)
         self.bbJoystick.eStopUpdated.add_callback(self.bbFlight.setEStop)
 
-
         self.bbSerial = serial.Serial()
         self.bbCommander = Commander(self.bbFlight, self.bbSerial)
 

@@ -41,7 +41,10 @@ class JoystickReader(object):
         self.exitAppUpdated = Caller()
         self.altholdUpdated = Caller()
 
-        self.readTimer = PeriodicTimer(0.2, self.readInput)
+        self._joystickDetectEnabled = False
+        self.rawDataForDetect = Caller()
+
+        self.readTimer = PeriodicTimer(0.01, self.readInput)
 
     def initDevice(self):
         pygame.quit()
@@ -86,10 +89,16 @@ class JoystickReader(object):
             for i in range(self._inputDevice.get_numbuttons()):
                 button.append(self._inputDevice.get_button(i))
 
+            if self._joystickDetectEnabled:
+                self.rawDataForDetect.call([axis, button])
+
             return {'axis': axis, 'button': button, 'hat': hat}
         else:
             logging.debug("Class Joystick not initialized!")
             return None
+
+    def setDetectEnabled(self, par):
+        self._joystickDetectEnabled = par
 
     def readInput(self):
         rawData = self.readRawData()
