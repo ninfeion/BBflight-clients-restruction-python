@@ -153,7 +153,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="maxAngleLabel">
               <property name="text">
-               <string>Max angle/rate</string>
+               <string>Max angle (°)</string>
               </property>
              </widget>
             </item>
@@ -167,7 +167,7 @@
             <item row="1" column="0">
              <widget class="QLabel" name="maxYawAngleLabel">
               <property name="text">
-               <string>Max Yaw angle/rate</string>
+               <string>Max Yaw angle (°)</string>
               </property>
              </widget>
             </item>
@@ -198,7 +198,7 @@
                <bool>false</bool>
               </property>
               <property name="maximum">
-               <number>100</number>
+               <number>180</number>
               </property>
              </widget>
             </item>
@@ -208,10 +208,10 @@
                <bool>false</bool>
               </property>
               <property name="maximum">
-               <number>100</number>
+               <number>180</number>
               </property>
               <property name="singleStep">
-               <number>10</number>
+               <number>1</number>
               </property>
              </widget>
             </item>
@@ -470,7 +470,7 @@
                  </sizepolicy>
                 </property>
                 <property name="maximum">
-                 <number>65535</number>
+                 <number>2000</number>
                 </property>
                 <property name="value">
                  <number>24</number>

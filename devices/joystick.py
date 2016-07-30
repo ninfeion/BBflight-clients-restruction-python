@@ -24,19 +24,20 @@ class JoystickReader(object):
         self._mappingConfig = None
         self._mappingMutex = Lock()
 
-        self.minThrust = Config().get("normal_min_thrust")
-        self.maxThrust = Config().get("normal_max_thrust")
-
-        self.maxAngle = Config().get("normal_max_rp")
-        self.maxYawAngle = Config().get("normal_max_yaw")
-        self.slewLimit = Config().get("normal_slew_limit")
-        self.thrustLoweringSlewRate = Config().get("normal_slew_rate")
-
-        self.trimRoll = Config().get("trim_roll")
-        self.trimPitch = Config().get("trim_pitch")
-        self.trimYaw = Config().get("trim_yaw")
-
-        #JoystickConfig().readConfigFile()
+        if Config().get("flightmode") == 'Normal':
+            self.minThrust = Config().get("normal_min_thrust")
+            self.maxThrust = Config().get("normal_max_thrust")
+            self.maxAngle = Config().get("normal_max_rp")
+            self.maxYawAngle = Config().get("normal_max_yaw")
+            self.slewLimit = Config().get("normal_slew_limit")
+            self.thrustLoweringSlewRate = Config().get("normal_slew_rate")
+        else:
+            self.minThrust = Config().get("min_thrust")
+            self.maxThrust = Config().get("max_thrust")
+            self.maxAngle = Config().get("max_rp")
+            self.maxYawAngle = Config().get("max_yaw")
+            self.slewLimit = Config().get("slew_limit")
+            self.thrustLoweringSlewRate = Config().get("slew_rate")
 
         self.inputUpdated = Caller()
         self.rpTrimUpdated = Caller()
@@ -114,12 +115,16 @@ class JoystickReader(object):
                         if ('Input.AXIS-%d'%i) in self._mappingConfig:
                             if self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'thrust':
                                 if Config().get('thrustmode') == 'Linear':
-                                    inputData['thrust'] =  int(rawData[d][i] *1000 +1000)
+                                    inputData['thrust'] = rawData[d][i] * 1000 + 1000
                                 elif Config().get('thrustmode') == 'Quadratic':
                                     if rawData[d][i] >= 0:
-                                        inputData['thrust'] = int(rawData[d][i] **2 * 1000 +1000)
+                                        inputData['thrust'] = rawData[d][i] **2 * 1000 + 1000
                                     else:
-                                        inputData['thrust'] = int(rawData[d][i] **2 * -1000 +1000)
+                                        inputData['thrust'] = rawData[d][i] **2 * -1000 + 1000
+                                inputData['thrust'] = inputData['thrust'] / 2000 * (
+                                    self.maxThrust - self.minThrust) * 20 + self.minThrust *20
+                                # Or:inputData['thrust'] = self.maxThrust *20 - inputData['thrust'] /(
+                                # 2000 * (self.maxThrust - self.minThrust) * 20)
                             elif self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'yaw':
                                 inputData['yaw'] = rawData[d][i] * 180
                                 trimVal = Config().get("trim_yaw")
@@ -127,10 +132,11 @@ class JoystickReader(object):
                                     inputData['yaw'] = 0
                                 else:
                                     if inputData['yaw'] >= 0:
-                                        inputData['yaw'] -= trimVal
+                                        inputData['yaw'] = (inputData['yaw'] - trimVal) / (
+                                            180.0 - trimVal) * self.maxYawAngle
                                     else:
-                                        inputData['yaw'] += trimVal
-
+                                        inputData['yaw'] = (inputData['yaw'] + trimVal) / (
+                                            180.0 - trimVal) * self.maxYawAngle
                             elif self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'roll':
                                 inputData['roll'] = - rawData[d][i] * 180
                                 trimVal = Config().get("trim_roll")
@@ -138,10 +144,11 @@ class JoystickReader(object):
                                     inputData['roll'] = 0
                                 else:
                                     if inputData['roll'] >= 0:
-                                        inputData['roll'] -= trimVal
+                                        inputData['roll'] = (inputData['roll'] - trimVal) / (
+                                        180.0 - trimVal) * self.maxAngle
                                     else:
-                                        inputData['roll'] += trimVal
-
+                                        inputData['roll'] = (inputData['roll'] + trimVal) / (
+                                        180.0 - trimVal) * self.maxAngle
                             elif self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'pitch':
                                 inputData['pitch'] = rawData[d][i] * 180
                                 trimVal = Config().get("trim_pitch")
@@ -149,9 +156,11 @@ class JoystickReader(object):
                                     inputData['pitch'] = 0
                                 else:
                                     if inputData['pitch'] >= 0:
-                                        inputData['pitch'] -= trimVal
+                                        inputData['pitch'] = (inputData['pitch'] - trimVal) / (
+                                        180.0 - trimVal) * self.maxAngle
                                     else:
-                                        inputData['pitch'] += trimVal
+                                        inputData['pitch'] = (inputData['pitch'] + trimVal) / (
+                                        180.0 - trimVal) * self.maxAngle
                 #if d == 'hat':
                     #for i in range(len(rawData[d])):
                         #if ('Input.HAT-%d'%i) in self._mappingConfig:

@@ -74,14 +74,17 @@ class Commander(object):
         self.flightConnectionUpdate = Caller()
         self.haveBroDetected = Caller()
 
+        self.rawRecieveUpdate = Caller()
+
     def setXMode(self, enabled):
         self._isXMode = enabled
 
     def analyzeThread(self):
         data = self._bbSerial.read(self._bbSerial.in_waiting)
         if data:
+            self.rawRecieveUpdate.call(data)
             try:
-                okdata = struct.unpack('<BBHfffBBBBHBBf??BB', data)
+                okdata = struct.unpack('<BBHfffBBBBHBBfBBBB', data)
                 if okdata[0] == 0xaa and okdata[-1] == 0xff:
                     imuReturnData = ImuData()
                     imuReturnData.thrust = okdata[2]

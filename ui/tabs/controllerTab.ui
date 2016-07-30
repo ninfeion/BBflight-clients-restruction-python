@@ -729,12 +729,7 @@
          </property>
          <item>
           <property name="text">
-           <string>5</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>6</string>
+           <string>8</string>
           </property>
          </item>
          <item>
@@ -744,7 +739,12 @@
          </item>
          <item>
           <property name="text">
-           <string>8</string>
+           <string>6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>5</string>
           </property>
          </item>
         </widget>

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import logging
-
 from ui.tab import Tab
 
 from PyQt5 import uic
@@ -10,8 +8,13 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QPushButton
 
 import ui
-import threading
 import time
+import logging
+import threading
+import serial.tools.list_ports
+
+from utils.callbacks import Caller
+from config.bbconfig import Config
 from devices.joystickMapConfig import JoystickConfig
 
 controller_tab_class = uic.loadUiType(ui.modulePath + '/tabs/ControllerTab.ui')[0]
@@ -19,26 +22,17 @@ controller_tab_class = uic.loadUiType(ui.modulePath + '/tabs/ControllerTab.ui')[
 class ControllerTab(Tab, controller_tab_class):
 
     serialBrowserUpdate = pyqtSignal(str)
-
     _axisDataUpdate = pyqtSignal(int, float, float, float)
     _rpTrimDataUpdate = pyqtSignal(bool, bool, bool, bool)
     _exitAppUpdate = pyqtSignal(bool)
     _estopUpdate = pyqtSignal(bool)
     _altholdUpdate = pyqtSignal(bool)
-
     _detectMessageBoxShowOrCloseSignal = pyqtSignal(bool)
     _detectMessageBoxTitleSetSignal = pyqtSignal(str)
 
-    #_devicesListUpdate = pyqtSignal(object)
-    #_devicesSelect = pyqtSignal(int)
-    #_serialPortListUpdate = pyqtSignal(object)
-    #_serialPortSelect = pyqtSignal(str)
-
     _mappingDetectUpdate = pyqtSignal(object)
-    #_buttonDetectUpdate = pyqtSignal(object)
-
-    connectionFinishSignal = pyqtSignal(str)
-    disconnectedSignal = pyqtSignal(str)
+    #connectionFinishSignal = pyqtSignal(str)
+    #disconnectedSignal = pyqtSignal(str)
 
     def __init__(self, joystick, serial):
         super().__init__()
@@ -48,22 +42,7 @@ class ControllerTab(Tab, controller_tab_class):
 
         self._deviceNum = None
         self._inputDevice = joystick
-
-        self._axisIndicators = {"roll": self.rollAxisValue,
-                                "pitch": self.pitchAxisValue,
-                                "yaw": self.yawAxisValue,
-                                "thrust": self.thrustAxisValue}
-
-        self._buttonIndicators = {"pitchNeg": self.pitchNeg,
-                                  "pitchPos": self.pitchPos,
-                                  "rollNeg": self.rollNeg,
-                                  "rollPos": self.rollPos,
-                                  "althold": self.althold,
-                                  "killswitch": self.killswitch,
-                                  "exitapp": self.exitapp,
-                                  "resevered1": self.resevered1,
-                                  "resevered2": self.resevered2,
-                                  "resevered3": self.resevered3}
+        self._serial = serial
 
         self.joystickScan.clicked.connect(self.scanInputDevice)
         self.joystickSelect.activated[str].connect(self.selectInputDevice)
@@ -105,7 +84,39 @@ class ControllerTab(Tab, controller_tab_class):
 
         self.splitter.setSizes([1000, 1])
         self.splitter_2.setSizes([1000, 1])
+
         self.serialPortScan.clicked.connect(self.getSerialList)
+        self.serialOpen.clicked.connect(self.openSerialPort)
+        self.serialClose.clicked.connect(self.closeSerialPort)
+
+        self.baudRateSet.currentIndexChanged[int].connect(self.serialBaudRateSet)
+        self.dataBitsSet.currentIndexChanged[int].connect(self.serialDataBitsSet)
+        self.paritySet.currentIndexChanged[int].connect(self.serialParitySet)
+        self.stopBitsSet.currentIndexChanged[int].connect(self.serialStopBitsSet)
+        self.flowControlSet.currentIndexChanged[int].connect(self.serialFlowControlSet)
+
+        self.baudRateSet.setCurrentIndex((lambda ite: 0 if ite == '9600' else
+                                                     1 if ite == '19200' else
+                                                     2 if ite == '38400' else
+                                                     3 )(Config().get("serial_baudrate")))
+        self.dataBitsSet.setCurrentIndex((lambda ite: 0 if ite == '8' else
+                                                     1 if ite == '7' else
+                                                     2 if ite == '6' else
+                                                     3 )(Config().get("serial_bytesize")))
+        self.paritySet.setCurrentIndex((lambda ite: 0 if ite == 'None' else
+                                                   1 if ite == 'Even' else
+                                                   2 if ite == 'Odd' else
+                                                   3 if ite == 'Mark' else
+                                                   4 )(Config().get("serial_parity")))
+        self.stopBitsSet.setCurrentIndex((lambda ite: 0 if ite == '1' else
+                                                     1 if ite == '1.5' else
+                                                     2 )(Config().get("serial_stopbits")))
+        self.flowControlSet.setCurrentIndex((lambda ite: 0 if ite == 'None' else
+                                                        1 if ite == 'RTS/CTS' else
+                                                        2 )(Config().get("serial_flowcontrol")))
+
+        self.canConnectFromSerial = Caller()
+        self.serialBrowserClear.clicked.connect(lambda : self.serialTextBrowser.clear())
 
     def _axisSliderUpdate(self, thrust, yaw, roll, pitch):
         self.thrustAxisValue.setValue(thrust)
@@ -218,7 +229,76 @@ class ControllerTab(Tab, controller_tab_class):
         self._pressedListMutex.release()
 
     def getSerialList(self):
-        pass
+        self.portName = {}
+        self.portList = list(serial.tools.list_ports.comports())
+        self.serialPortSelect.clear()
+        for i in range(len(self.portList)):
+            self.portName[self.portList[i][0]] = self.portList[i][1]
+        logging.debug("Serial Port Found List: %s" %self.portName)
+        if len(self.portName):
+            for p in self.portName:
+                self.serialPortSelect.addItem(self.portName[p])
+        self.serialOpen.setEnabled(True)
+        self.baudRateSet.setEnabled(True)
+        self.dataBitsSet.setEnabled(True)
+        self.paritySet.setEnabled(True)
+        self.stopBitsSet.setEnabled(True)
+        self.flowControlSet.setEnabled(True)
+
+    def openSerialPort(self):
+        portChosen = self.serialPortSelect.currentText()
+
+        for p in self.portName:
+            if self.portName[p] == portChosen:
+                self._serial.port = p
+
+        self._serial.baudrate = int(Config().get("serial_baudrate"))
+        self._serial.bytesize = int(Config().get("serial_bytesize"))
+        self._serial.parity = Config().get("serial_parity")[0]
+        self._serial.stopbits = (lambda string: int(string) if string != '1.5'
+                          else float(string))(Config().get("serial_stopbits"))
+        self._serial.rtscts = (lambda string: True if string == 'RTS/CTS'
+                          else False)(Config().get("serial_flowcontrol"))
+        self._serial.xonxoff = (lambda string: True if string == 'XON/XOFF'
+                          else False)(Config().get("serial_flowcontrol"))
+        try:
+            self._serial.open()
+            self.serialClose.setEnabled(True)
+            self.canConnectFromSerial.call(True)
+            self.serialOpen.setEnabled(False)
+            logging.debug("Serial: %s Open Success" % self._serial.port)
+        except Exception as e:
+            logging.info("Serial: %s Open Fail: %s" %(self._serial.port, e))
+
+    def closeSerialPort(self):
+        try:
+            self._serial.close()
+            self.serialClose.setEnabled(False)
+            self.canConnectFromSerial.call(False)
+            self.serialOpen.setEnabled(True)
+            logging.debug("Serial: %s Close Success" % self._serial.port)
+        except Exception as e:
+            logging.info("Serial: %s Close Fail: %s" %(self._serial.port, e))
+
+    def serialBaudRateSet(self, item):
+        Config().set("serial_baudrate", self.baudRateSet.itemText(item))
+        logging.debug("Set Baud Rate to %s" % self.baudRateSet.itemText(item))
+
+    def serialDataBitsSet(self, item):
+        Config().set("serial_bytesize", self.dataBitsSet.itemText(item))
+        logging.debug("Set Data Bits to %s" % self.dataBitsSet.itemText(item))
+
+    def serialParitySet(self, item):
+        Config().set("serial_parity", self.paritySet.itemText(item))
+        logging.debug("Set Parity to %s" % self.paritySet.itemText(item))
+
+    def serialStopBitsSet(self, item):
+        Config().set("serial_stopbits", self.stopBitsSet.itemText(item))
+        logging.debug("Set Stop Bits to %s" % self.stopBitsSet.itemText(item))
+
+    def serialFlowControlSet(self, item):
+        Config().set("serial_flowcontrol", self.flowControlSet.itemText(item))
+        logging.debug("Set Flow Control to %s" % self.flowControlSet.itemText(item))
 
     def selectInputDevice(self, par):
         self.joystickName.setText(self._inputDevice.setDevice(int(par)))

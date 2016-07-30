@@ -34,6 +34,9 @@ class FlightTab(Tab, flight_tab_class):
 
         self.tabName = 'Flight Control'
 
+        self._inputDevice = joystick
+        self._commanderRx = comemiter
+
         self.yawOffset.setValue(Config().get("trim_yaw"))
         self.pitchOffset.setValue(Config().get("trim_pitch"))
         self.rollOffset.setValue(Config().get("trim_roll"))
@@ -43,9 +46,9 @@ class FlightTab(Tab, flight_tab_class):
         self.splitter.setSizes([1000, 1])
 
         self._inputDataUpdate.connect(self._inputDataUIUpdate)
-        joystick.inputUpdated.add_callback(self._inputDataUpdate.emit)
+        self._inputDevice.inputUpdated.add_callback(self._inputDataUpdate.emit)
         self._imuDataUpdate.connect(self._imuUiUpdate)
-        comemiter.imuDataUpdate.add_callback(self._imuDataUpdate.emit)
+        self._commanderRx.imuDataUpdate.add_callback(self._imuDataUpdate.emit)
 
         self.flightModeComboBox.currentIndexChanged[int].connect(self.flightModeChange)
         self.thrustModeComboBox.currentIndexChanged[int].connect(self.thrustModeChange)
@@ -77,6 +80,10 @@ class FlightTab(Tab, flight_tab_class):
             self.thrustModeComboBox.setCurrentIndex(0)
         else:
             self.thrustModeComboBox.setCurrentIndex(1)
+        if Config().get("is_xmode"):
+            self.xModeRadioButton.setChecked(True)
+        else:
+            self.tenModeRadioButton.setChecked(True)
 
     def yawOffsetSetting(self, par):
         Config().set("trim_yaw", par)
@@ -101,34 +108,40 @@ class FlightTab(Tab, flight_tab_class):
             logging.debug("Control mode is + mode")
 
     def maxAngleSetting(self, par):
+        logging.debug("Change maxAngle limit(roll and pitch) to %d" % par)
+        self._inputDevice.maxAngle = par
         if self.isInFlightmode:
             Config().set("max_rp", par)
-            logging.debug("Change maxAngle limit(roll and pitch) to %d" % par)
 
     def maxYawAngleSetting(self, par):
+        logging.debug("Change maxYaw limit to %d" % par)
+        self._inputDevice.maxYawAngle = par
         if self.isInFlightmode:
             Config().set("max_yaw", par)
-            logging.debug("Change maxYaw limit to %d" % par)
 
     def maxThrustSetting(self, par):
+        logging.debug("Change maxThrust limit to %f" % par)
+        self._inputDevice.maxThrust = par
         if self.isInFlightmode:
             Config().set("max_thrust", par)
-            logging.debug("Change maxThrust limit to %f" % par)
 
     def minThrustSetting(self, par):
+        logging.debug("Change minThrust limit to %f" % par)
+        self._inputDevice.minThrust = par
         if self.isInFlightmode:
             Config().set("min_thrust", par)
-            logging.debug("Change minThrust limit to %f" % par)
 
     def slewLimitSetting(self, par):
+        logging.debug("Change slew limit to %f" % par)
+        self._inputDevice.slewLimit = par
         if self.isInFlightmode:
             Config().set("slew_limit", par)
-            logging.debug("Change slew limit to %f" % par)
 
     def thrustLoweringSlewRateSetting(self, par):
+        logging.debug("Change thrust lowering slew rate to %f" % par)
+        self._inputDevice.thrustLoweringSlewRate = par
         if self.isInFlightmode:
             Config().set("slew_rate", par)
-            logging.debug("Change thrust lowering slew rate to %f" % par)
 
     def thrustModeChange(self, item):
         Config().set("thrustmode", str(self.thrustModeComboBox.itemText(item)))
@@ -164,8 +177,9 @@ class FlightTab(Tab, flight_tab_class):
         self.maxYawAngle.setEnabled(STATE)
         self.maxThrust.setEnabled(STATE)
         self.minThrust.setEnabled(STATE)
-        self.slewLimit.setEnabled(STATE)
-        self.thrustLoweringSlewRate.setEnabled(STATE)
+        #self.slewLimit.setEnabled(STATE)
+        #self.thrustLoweringSlewRate.setEnabled(STATE)
+        # TODO: Because i don't how to programe there two function,so disable it
 
     def _inputDataUIUpdate(self, thrust, yaw, roll, pitch):
         self.targetThrust.setText(('%d' % thrust))
@@ -183,9 +197,9 @@ class FlightTab(Tab, flight_tab_class):
 
     def _imuUiUpdate(self, data):
         self.actualThrust.setText('%d' % data.thrust)
-        self.actualPitch.setText('0.2f' % data.pitch)
-        self.actualRoll.setText('0.2f' % data.roll)
-        self.actualYaw.setText('0.2f' % data.yaw)
+        self.actualPitch.setText('%0.2f' % data.pitch)
+        self.actualRoll.setText('%0.2f' % data.pitch)
+        self.actualYaw.setText('%0.2f' % data.yaw)
 
         self.thrustProgressBar.setValue(data.thrust)
         self.m1ProgressBar.setValue(data.motor1)

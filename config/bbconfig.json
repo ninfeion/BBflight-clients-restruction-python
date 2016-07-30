@@ -1,28 +1,33 @@
 {
-  "writable": {
-    "max_rp": 30,
-    "device_config_mapping": {},
-    "thrustmode": "Quadratic",
-    "slew_rate": 30,
-    "input_device": "",
-    "max_thrust": 99,
-    "min_thrust": 0,
-    "slew_limit": 45,
-    "trim_pitch": 28.0,
-    "trim_roll": 28.0,
-    "max_yaw": 70,
-    "trim_yaw": 22.0,
-    "is_xmode": false,
-    "device_address": "0xff,0xff,0xff,0xff,0xff",
-    "flightmode": "Advanced"
-  },
   "read-only": {
-    "normal_max_rp": 30,
+    "normal_max_yaw": 60,
     "normal_slew_rate": 30,
-    "default_trim": 0,
-    "normal_max_yaw": 100,
+    "normal_slew_limit": 45,
     "normal_max_thrust": 80,
-    "normal_min_thrust": 25,
-    "normal_slew_limit": 45
+    "default_trim": 0,
+    "normal_max_rp": 60,
+    "normal_min_thrust": 25
+  },
+  "writable": {
+    "min_thrust": 20.0,
+    "trim_pitch": 28.0,
+    "device_address": "0xff,0xff,0xff,0xff,0xff",
+    "serial_parity": "None",
+    "thrustmode": "Quadratic",
+    "max_thrust": 80.0,
+    "is_xmode": false,
+    "serial_baudrate": "115200",
+    "input_device": "",
+    "trim_yaw": 22.0,
+    "serial_bytesize": "8",
+    "flightmode": "Advanced",
+    "serial_flowcontrol": "None",
+    "serial_stopbits": "1",
+    "max_yaw": 70,
+    "device_config_mapping": {},
+    "trim_roll": 28.0,
+    "max_rp": 30,
+    "slew_rate": 30,
+    "slew_limit": 45
   }
 }
