@@ -1,0 +1,90 @@
+{
+  "inputconfig": {
+    "inputdevice": {
+      "updateperiod": 10,
+      "name": "XBOX 360 For Windows (Controller)",
+      "axis": [
+        {
+          "scale": 1.0,
+          "type": "Input.AXIS",
+          "id": 1,
+          "key": "thrust",
+          "name": "thrust"
+        },
+        {
+          "scale": 1.0,
+          "type": "Input.AXIS",
+          "id": 0,
+          "key": "yaw",
+          "name": "yaw"
+        },
+        {
+          "scale": 1.0,
+          "type": "Input.AXIS",
+          "id": 3,
+          "key": "roll",
+          "name": "roll"
+        },
+        {
+          "scale": 1.0,
+          "type": "Input.AXIS",
+          "id": 2,
+          "key": "pitch",
+          "name": "pitch"
+        }
+      ],
+      "hat": [
+        {
+          "type": "Input.HAT",
+          "id": 0,
+          "key": "nouse",
+          "name": "nouse"
+        }
+      ],
+      "button": [
+        {
+          "type": "Input.BUTTON",
+          "id": 4,
+          "key": "pitchNeg",
+          "name": "pitchNeg"
+        },
+        {
+          "type": "Input.BUTTON",
+          "id": 5,
+          "key": "pitchPos",
+          "name": "pitchPos"
+        },
+        {
+          "type": "Input.BUTTON",
+          "id": 1,
+          "key": "estop",
+          "name": "killswitch"
+        },
+        {
+          "type": "Input.BUTTON",
+          "id": 2,
+          "key": "rollNeg",
+          "name": "rollNeg"
+        },
+        {
+          "type": "Input.BUTTON",
+          "id": 3,
+          "key": "rollPos",
+          "name": "rollPos"
+        },
+        {
+          "type": "Input.BUTTON",
+          "id": 0,
+          "key": "althold",
+          "name": "althold"
+        },
+        {
+          "type": "Input.BUTTON",
+          "id": 6,
+          "key": "exitapp",
+          "name": "exitapp"
+        }
+      ]
+    }
+  }
+}

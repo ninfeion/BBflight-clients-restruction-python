@@ -25,10 +25,13 @@ __all__ = ['MainUI']
 main_window_class = uic.loadUiType(ui.modulePath + '/main.ui')[0]
 logging.basicConfig(level=logging.DEBUG)
 
+from config.bbconfig import Config
+
 class MainUI(QtWidgets.QMainWindow, main_window_class):
 
     batteryUiUpdate = pyqtSignal(int)
     linkQualityUiUpdate = pyqtSignal(int)
+    flightConnectStatus = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
@@ -42,6 +45,15 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
 
         self.bbSerial = serial.Serial()
         self.bbCommander = Commander(self.bbFlight, self.bbSerial)
+        self.bbCommander.batteryUpdate.add_callback(self.batteryUiUpdate.emit)
+        self.bbCommander.linkQualityUpdate.add_callback(self.linkQualityUiUpdate.emit)
+
+        self.batteryUiUpdate.connect(self.batteryUiValSet)
+        self.linkQualityUiUpdate.connect(self.linkQualityUiValSet)
+
+        # Set Menu Bar
+        self.actionSaveConfig.triggered.connect(self.saveClientConfig)
+        self.actionAbout.triggered.connect(self.aboutBBFlight)
 
         # Load and connect tabs
         self.loadedTabs = {}
@@ -52,7 +64,17 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         self.bbTabs.addTab(tab, tab.getTabName())
         self.loadedTabs[tab.getTabName()] = tab
 
+    def batteryUiValSet(self, val):
+        self.batteryProgressBar.setValue(val)
 
+    def linkQualityUiValSet(self, val):
+        self.linkQualityProgressBar.setValue(val)
+
+    def saveClientConfig(self):
+        Config().saveFile()
+
+    def aboutBBFlight(self):
+        pass
 
 
 

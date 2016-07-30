@@ -1,28 +1,28 @@
 {
-  "writable" : {
-    "input_device": "",
-    "device_address": "0xff,0xff,0xff,0xff,0xff",
-    "flightmode": "Normal",
-    "thrustmode": "Linear",
-    "trim_pitch": 30.0,
-    "slew_limit": 45,
+  "writable": {
+    "max_rp": 30,
+    "device_config_mapping": {},
+    "thrustmode": "Quadratic",
     "slew_rate": 30,
-    "trim_roll": 30.0,
-    "trim_yaw": 30.0,
+    "input_device": "",
     "max_thrust": 99,
     "min_thrust": 0,
+    "slew_limit": 45,
+    "trim_pitch": 28.0,
+    "trim_roll": 28.0,
     "max_yaw": 70,
-    "max_rp": 30,
+    "trim_yaw": 22.0,
     "is_xmode": false,
-    "device_config_mapping": {}
+    "device_address": "0xff,0xff,0xff,0xff,0xff",
+    "flightmode": "Advanced"
   },
-  "read-only" : {
-    "normal_slew_limit": 45,
+  "read-only": {
+    "normal_max_rp": 30,
     "normal_slew_rate": 30,
+    "default_trim": 0,
+    "normal_max_yaw": 100,
     "normal_max_thrust": 80,
     "normal_min_thrust": 25,
-    "normal_max_yaw": 100,
-    "normal_max_rp": 30,
-    "default_trim": 0
+    "normal_slew_limit": 45
   }
 }

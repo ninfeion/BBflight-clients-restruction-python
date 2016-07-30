@@ -47,13 +47,6 @@ class FlightTab(Tab, flight_tab_class):
         self._imuDataUpdate.connect(self._imuUiUpdate)
         comemiter.imuDataUpdate.add_callback(self._imuDataUpdate.emit)
 
-        self.maxAngle.setValue(Config().get("normal_max_rp"))
-        self.maxYawAngle.setValue(Config().get("normal_max_yaw"))  # rate
-        self.maxThrust.setValue(Config().get("normal_max_thrust"))
-        self.minThrust.setValue(Config().get("normal_min_thrust"))
-        self.slewLimit.setValue(Config().get("normal_slew_limit"))
-        self.thrustLoweringSlewRate.setValue(Config().get("normal_slew_rate"))
-
         self.flightModeComboBox.currentIndexChanged[int].connect(self.flightModeChange)
         self.thrustModeComboBox.currentIndexChanged[int].connect(self.thrustModeChange)
         self.yawOffset.valueChanged[float].connect(self.yawOffsetSetting)
@@ -69,6 +62,21 @@ class FlightTab(Tab, flight_tab_class):
         self.minThrust.valueChanged[float].connect(self.minThrustSetting)
         self.slewLimit.valueChanged[float].connect(self.slewLimitSetting)
         self.thrustLoweringSlewRate.valueChanged[float].connect(self.thrustLoweringSlewRateSetting)
+
+        self.maxAngle.setValue(Config().get("normal_max_rp"))
+        self.maxYawAngle.setValue(Config().get("normal_max_yaw"))  # rate
+        self.maxThrust.setValue(Config().get("normal_max_thrust"))
+        self.minThrust.setValue(Config().get("normal_min_thrust"))
+        self.slewLimit.setValue(Config().get("normal_slew_limit"))
+        self.thrustLoweringSlewRate.setValue(Config().get("normal_slew_rate"))
+        if Config().get("flightmode") == 'Normal':
+            self.flightModeComboBox.setCurrentIndex(0)
+        else:
+            self.flightModeComboBox.setCurrentIndex(1)
+        if Config().get("thrustmode") == 'Linear':
+            self.thrustModeComboBox.setCurrentIndex(0)
+        else:
+            self.thrustModeComboBox.setCurrentIndex(1)
 
     def yawOffsetSetting(self, par):
         Config().set("trim_yaw", par)

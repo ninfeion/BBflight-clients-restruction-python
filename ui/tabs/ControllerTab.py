@@ -26,6 +26,9 @@ class ControllerTab(Tab, controller_tab_class):
     _estopUpdate = pyqtSignal(bool)
     _altholdUpdate = pyqtSignal(bool)
 
+    _detectMessageBoxShowOrCloseSignal = pyqtSignal(bool)
+    _detectMessageBoxTitleSetSignal = pyqtSignal(str)
+
     #_devicesListUpdate = pyqtSignal(object)
     #_devicesSelect = pyqtSignal(int)
     #_serialPortListUpdate = pyqtSignal(object)
@@ -52,37 +55,40 @@ class ControllerTab(Tab, controller_tab_class):
                                 "thrust": self.thrustAxisValue}
 
         self._buttonIndicators = {"pitchNeg": self.pitchNeg,
-                                    "pitchPos": self.pitchPos,
-                                    "rollNeg": self.rollNeg,
-                                    "rollPos": self.rollPos,
-                                    "althold": self.althold,
-                                    "killswitch": self.killswitch,
-                                    "exitapp": self.exitapp,
-                                    "resevered1": self.resevered1,
-                                    "resevered2": self.resevered2,
-                                    "resevered3": self.resevered3}
+                                  "pitchPos": self.pitchPos,
+                                  "rollNeg": self.rollNeg,
+                                  "rollPos": self.rollPos,
+                                  "althold": self.althold,
+                                  "killswitch": self.killswitch,
+                                  "exitapp": self.exitapp,
+                                  "resevered1": self.resevered1,
+                                  "resevered2": self.resevered2,
+                                  "resevered3": self.resevered3}
 
         self.joystickScan.clicked.connect(self.scanInputDevice)
         self.joystickSelect.activated[str].connect(self.selectInputDevice)
 
-        self.detectRoll.clicked.connect(lambda : self._mappingDetect('InputAXIS', 'roll'))
-        self.detectPitch.clicked.connect(lambda : self._mappingDetect('InputAXIS', 'pitch'))
-        self.detectYaw.clicked.connect(lambda : self._mappingDetect('InputAXIS', 'yaw'))
-        self.detectThrust.clicked.connect(lambda : self._mappingDetect('InputAXIS', 'thrust'))
-        self.detectPitchPos.clicked.connect(lambda : self._mappingDetect('InputBUTTON', 'pitchPos'))
-        self.detectPitchNeg.clicked.connect(lambda : self._mappingDetect('InputBUTTON', 'pitchNeg'))
-        self.detectRollPos.clicked.connect(lambda : self._mappingDetect('InputBUTTON', 'rollPos'))
-        self.detectRollNeg.clicked.connect(lambda : self._mappingDetect('InputBUTTON', 'rollNeg'))
-        self.detectAltHold.clicked.connect(lambda : self._mappingDetect('InputBUTTON', 'althold'))
-        self.detectKillswitch.clicked.connect(lambda : self._mappingDetect('InputBUTTON', 'killswitch'))
-        self.detectExitapp.clicked.connect(lambda : self._mappingDetect('InputBUTTON', 'exitapp'))
+        self._pressedList = None
+        self._pressedListMutex = threading.Lock()
+        self.detectRoll.clicked.connect(lambda : self._mappingDetect('Input.AXIS', 'roll'))
+        self.detectPitch.clicked.connect(lambda : self._mappingDetect('Input.AXIS', 'pitch'))
+        self.detectYaw.clicked.connect(lambda : self._mappingDetect('Input.AXIS', 'yaw'))
+        self.detectThrust.clicked.connect(lambda : self._mappingDetect('Input.AXIS', 'thrust'))
+        self.detectPitchPos.clicked.connect(lambda : self._mappingDetect('Input.BUTTON', 'pitchPos'))
+        self.detectPitchNeg.clicked.connect(lambda : self._mappingDetect('Input.BUTTON', 'pitchNeg'))
+        self.detectRollPos.clicked.connect(lambda : self._mappingDetect('Input.BUTTON', 'rollPos'))
+        self.detectRollNeg.clicked.connect(lambda : self._mappingDetect('Input.BUTTON', 'rollNeg'))
+        self.detectAltHold.clicked.connect(lambda : self._mappingDetect('Input.BUTTON', 'althold'))
+        self.detectKillswitch.clicked.connect(lambda : self._mappingDetect('Input.BUTTON', 'estop'))
+        self.detectExitapp.clicked.connect(lambda : self._mappingDetect('Input.BUTTON', 'exitapp'))
         #self.detectResevered1.clicked.connect(lambda : self._mappingDetect(self, 'InputBUTTON', 'resevered1'))
         #self.detectResevered2.clicked.connect(lambda : self._mappingDetect(self, 'InputBUTTON', 'resevered2'))
         #self.detectResevered3.clicked.connect(lambda : self._mappingDetect(self, 'InputBUTTON', 'resevered3'))
 
+        self._detectMessageBoxShowOrCloseSignal.connect(self._detectMessageBoxShowOrClose)
+        self._detectMessageBoxTitleSetSignal.connect(self._detectMessageBoxTitleSet)
         self.configSave.clicked.connect(self.saveConfigFile)
         self.configLoad.clicked.connect(self.joystickConfigSelect)
-
         self._mappingDetectUpdate.connect(self._rawDataAnalysisForMapping)
         self._inputDevice.rawDataForDetect.add_callback(self._mappingDetectUpdate.emit)
 
@@ -126,50 +132,77 @@ class ControllerTab(Tab, controller_tab_class):
         logging.debug("Start Detect Type: %s, Key: %s" % (axisorbutton, key))
 
         self._waitPress = QMessageBox()
-
         self._waitPressCancel = QPushButton('Cancel')
         self._waitPressCancel.clicked.connect(self._mappingDetectCancel)
         self._waitPress.addButton(self._waitPressCancel, QMessageBox.DestructiveRole)
-
         self._waitPress.setWindowTitle("Wait For Single Pressed")
-        self._waitPress.setText("Put One Of Axis To Max Or Press One\nOf Button Those Will Be Mapped.")
-
+        if axisorbutton == 'Input.AXIS':
+            self._waitPress.setText("Put One Of Axis To Max Or Min Value\n"
+                                    "Press One Which Will Be Mapped As %s." % key)
+        else:
+            self._waitPress.setText("Press One Of Button Which Will Be Mapped As %s." % key)
         self._singleDetectLoopFlag = True
-        self._singleDetect = threading.Thread(target=self._waitSinglePressedLoop,args=(axisorbutton, key))
-
+        self._singleDetect = threading.Thread(target=self._waitSinglePressedLoop,
+                                              args=(axisorbutton, key, 0.1))
         self._inputDevice.setDetectEnabled(True)
         self._singleDetect.setDaemon(True)
         self._singleDetect.start()
-
         self._waitPress.show()
 
     def _mappingDetectCancel(self):
-        self._singleDetectLoopFlag = True
+        self._singleDetectLoopFlag = False
         self._inputDevice.setDetectEnabled(False)
         self._waitPress.close()
         logging.debug("Mapping Set Cancel")
 
-    def _waitSinglePressedLoop(self, axisorbutton, key):
+    def _waitSinglePressedLoop(self, axisorbutton, key, offsettime):
         timeout = 8
         while self._singleDetectLoopFlag:
             time.sleep(0.2)
+            if self._singleDetectLoopFlag == False:
+                break
             timeout -= 0.2
-            self._waitPress.setWindowTitle("Wait For Single Pressed: %0.1fs" % timeout)
+            self._detectMessageBoxTitleSetSignal.emit("Wait For Single Pressed: %0.1fs" % timeout)
             if axisorbutton == 'Input.AXIS':
+                self._pressedListMutex.acquire()
                 if len(self._pressedList[0]) == 1:
-                    self._setMapping('Input.AXIS', key, self._pressedList[0][0])
-                    break
+                    time.sleep(offsettime)
+                    timeout -= offsettime
+                    if len(self._pressedList[0]) == 1:
+                        self._setMapping('Input.AXIS', key, self._pressedList[0][0])
+                        logging.debug("AXIS id: %d is detected, "
+                                      "target key: %s" % (self._pressedList[0][0], key))
+                        self._pressedListMutex.release()
+                        break
+                self._pressedListMutex.release()
             if axisorbutton == 'Input.BUTTON':
+                self._pressedListMutex.acquire()
                 if len(self._pressedList[1]) == 1:
-                    self._setMapping('Input.BUTTON', key, self._pressedList[1][0])
-                    break
+                    time.sleep(offsettime)
+                    timeout -= offsettime
+                    if len(self._pressedList[1]) == 1:
+                        self._setMapping('Input.BUTTON', key, self._pressedList[1][0])
+                        logging.debug("BUTTON id: %d is detected, "
+                                      "target key: %s" % (self._pressedList[1][0], key))
+                        self._pressedListMutex.release()
+                        break
+                self._pressedListMutex.release()
             if timeout <= 0:
                 break
         self._inputDevice.setDetectEnabled(False)
-        self._waitPress.close()
+        self._detectMessageBoxShowOrCloseSignal.emit(False)
+
+    def _detectMessageBoxShowOrClose(self, par):
+        if par:
+            self._waitPress.show()
+        else:
+            self._waitPress.close()
+
+    def _detectMessageBoxTitleSet(self, string):
+        self._waitPress.setWindowTitle(string)
 
     def _setMapping(self, axisorbutton, key, tarid):
-        pass
+        self._inputDevice.resetMappingAfterLoadConfig(axisorbutton, key, tarid)
 
     def _rawDataAnalysisForMapping(self, rawData):
         pressedAxis = []
@@ -180,10 +213,9 @@ class ControllerTab(Tab, controller_tab_class):
         for i in rawData[1]:
             if i:
                 pressedButton.append(rawData[1].index(i))
-
+        self._pressedListMutex.acquire()
         self._pressedList = [pressedAxis, pressedButton]
-        logging.debug([pressedAxis, pressedButton])
-
+        self._pressedListMutex.release()
 
     def getSerialList(self):
         pass
@@ -191,23 +223,25 @@ class ControllerTab(Tab, controller_tab_class):
     def selectInputDevice(self, par):
         self.joystickName.setText(self._inputDevice.setDevice(int(par)))
         self.configFileSelect.setEnabled(True)
-
         configList = JoystickConfig().readConfigFile()
         if configList:
             self.configFileSelect.clear()
             for fn in configList:
                 self.configFileSelect.addItem(fn)
-
             self.configLoad.setEnabled(True)
-
         else:
             error = QMessageBox.warning(self, 'Have Not Found Config File',
-                                         "Please copy correct config file\nto dir,and select device again.",
+                                         "Please copy correct config file\n"
+                                         "to dir,and select device again.",
                                          QMessageBox.Apply)
 
     def joystickConfigSelect(self):
         self._inputDevice.setMapping(self.configFileSelect.currentText())
-        self._inputDevice.readTimer.start()
+        if not self._inputDevice.readTimer.isStart():
+            self._inputDevice.readTimer.start()
+        else:
+            logging.debug("Reload Mapping Config File:"
+                          " %s" % self.configFileSelect.currentText())
         self.detectButtonEnabled(True)
 
     def detectButtonEnabled(self, par):
@@ -228,6 +262,8 @@ class ControllerTab(Tab, controller_tab_class):
         self.detectResevered3.setEnabled(par)
 
     def scanInputDevice(self):
+        if self._inputDevice.readTimer.isStart:
+            self._inputDevice.readTimer.stop()
         self._deviceNum = self._inputDevice.initDevice()
         self.joystickSelect.clear()
         if self._deviceNum:
@@ -236,9 +272,9 @@ class ControllerTab(Tab, controller_tab_class):
         logging.debug("Find %d devices" % self._deviceNum)
 
     def saveConfigFile(self):
-        configName = str(self.configFileSelect.currentText())
+        self._inputDevice.saveConfig(self.configFileSelect.currentText())
+        #logging.debug("Save Mapping In File: %s" % self.configFileSelect.currentText())
 
-        mapping = {'inputconfig': {'inputdevice': {'axis': [], 'hat': [],
-                                                   'button': []}}}
+
 
 

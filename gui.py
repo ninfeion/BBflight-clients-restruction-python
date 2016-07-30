@@ -14,6 +14,7 @@ def main():
     app.setWindowIcon(QIcon('bbproject.png'))
 
     main_window = MainUI()
+    main_window.setWindowTitle("BBFlight Client V0.0000001")
     main_window.show()
     sys.exit(app.exec_())
 

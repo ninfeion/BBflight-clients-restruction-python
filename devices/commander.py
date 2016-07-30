@@ -81,7 +81,7 @@ class Commander(object):
         data = self._bbSerial.read(self._bbSerial.in_waiting)
         if data:
             try:
-                okdata = struct.unpack('<BBHfffBBBBHBBfBBBB', data)
+                okdata = struct.unpack('<BBHfffBBBBHBBf??BB', data)
                 if okdata[0] == 0xaa and okdata[-1] == 0xff:
                     imuReturnData = ImuData()
                     imuReturnData.thrust = okdata[2]

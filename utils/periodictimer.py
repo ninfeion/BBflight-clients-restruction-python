@@ -60,6 +60,12 @@ class PeriodicTimer:
         self._thread.setDaemon(True)
         self._thread.start()
 
+    def isStart(self):
+        if self._thread:
+            return True
+        else:
+            return False
+
     def stop(self):
         """Stop the timer"""
         if self._thread:

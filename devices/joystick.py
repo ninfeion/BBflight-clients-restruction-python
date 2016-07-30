@@ -4,7 +4,9 @@
 
 import pygame
 import logging
+import json
 
+from threading import Lock
 from utils.callbacks import Caller
 from config.bbconfig import Config
 from utils.periodictimer import PeriodicTimer
@@ -20,6 +22,7 @@ class JoystickReader(object):
     def __init__(self):
         self._inputDevice = None
         self._mappingConfig = None
+        self._mappingMutex = Lock()
 
         self.minThrust = Config().get("normal_min_thrust")
         self.maxThrust = Config().get("normal_max_thrust")
@@ -72,7 +75,9 @@ class JoystickReader(object):
     def setMapping(self, filename):
         """ Accept a config file name and set the current config.
             Return a dict. """
+        self._mappingMutex.acquire()
         self._mappingConfig = JoystickConfig().getConfig(filename)
+        self._mappingMutex.release()
 
     def readRawData(self):
         if self._inputDevice.get_init() == True:
@@ -81,17 +86,14 @@ class JoystickReader(object):
             axis = []
             hat = []
             button = []
-
             for i in range(self._inputDevice.get_numaxes()):
                 axis.append(self._inputDevice.get_axis(i))
             for i in range(self._inputDevice.get_numhats()):
                 hat.append(self._inputDevice.get_hat(i))
             for i in range(self._inputDevice.get_numbuttons()):
                 button.append(self._inputDevice.get_button(i))
-
             if self._joystickDetectEnabled:
                 self.rawDataForDetect.call([axis, button])
-
             return {'axis': axis, 'button': button, 'hat': hat}
         else:
             logging.debug("Class Joystick not initialized!")
@@ -104,6 +106,7 @@ class JoystickReader(object):
         rawData = self.readRawData()
         inputData = {}
 
+        self._mappingMutex.acquire()
         if rawData:
             for d in rawData:
                 if d == 'axis':
@@ -149,7 +152,6 @@ class JoystickReader(object):
                                         inputData['pitch'] -= trimVal
                                     else:
                                         inputData['pitch'] += trimVal
-
                 #if d == 'hat':
                     #for i in range(len(rawData[d])):
                         #if ('Input.HAT-%d'%i) in self._mappingConfig:
@@ -167,7 +169,6 @@ class JoystickReader(object):
                             #    inputData['althold'] = rawData[d][i]
                             #elif self._mappingConfig['Input.HAT-%d'%i]['key'] == 'exitapp':
                             #    inputData['exitapp'] = rawData[d][i]
-
                 if d == 'button':
                     for i in range(len(rawData[d])):
                         if ('Input.BUTTON-%d'%i) in self._mappingConfig:
@@ -185,7 +186,7 @@ class JoystickReader(object):
                                 inputData['althold'] = rawData[d][i]
                             elif self._mappingConfig['Input.BUTTON-%d'%i]['key'] == 'exitapp':
                                 inputData['exitapp'] = rawData[d][i]
-
+            self._mappingMutex.release()
             self.inputUpdated.call(inputData['thrust'],
                                    inputData['yaw'],
                                    inputData['roll'],
@@ -198,16 +199,52 @@ class JoystickReader(object):
             self.exitAppUpdated.call(inputData['exitapp'])
             self.altholdUpdated.call(inputData['althold'])
 
+    def resetMappingAfterLoadConfig(self, type, key, tarid):
+        self._mappingMutex.acquire()
+        if ("%s-%d" % (type, tarid)) in self._mappingConfig:
+            for d in self._mappingConfig:
+                if self._mappingConfig[d]["key"] == key:
+                    (self._mappingConfig[d],
+                    self._mappingConfig["%s-%d" % (type, tarid)]) = (
+                    self._mappingConfig["%s-%d" % (type, tarid)],
+                    self._mappingConfig[d])
+                    (self._mappingConfig[d]['id'],
+                    self._mappingConfig["%s-%d" % (type, tarid)]['id']) = (
+                    self._mappingConfig["%s-%d" % (type, tarid)]['id'],
+                    self._mappingConfig[d]['id'])
+        else:
+            for d in self._mappingConfig:
+                if self._mappingConfig[d]["key"] == key:
+                    del(self._mappingConfig[d])
+                    break
+            self._mappingConfig["%s-%d" % (type, tarid)] = {"scale": 1.0,
+                                                            "type": type,
+                                                            "id": tarid,
+                                                            "key": key,
+                                                            "name": key}
+        self._mappingMutex.release()
 
-
-
-
-
-
-
-
-
-
+    def saveConfig(self, filename):
+        config = {'inputconfig': {'inputdevice': {'updateperiod': 10,
+                                                  'name': self._inputDevice.get_name(),
+                                                  'axis': [],
+                                                  'hat': [],
+                                                  'button': []}}}
+        self._mappingMutex.acquire()
+        for d in self._mappingConfig:
+            if self._mappingConfig[d]["type"] == "Input.AXIS":
+                config['inputconfig']['inputdevice']['axis'].append(self._mappingConfig[d])
+            elif self._mappingConfig[d]["type"] == "Input.BUTTON":
+                config['inputconfig']['inputdevice']['button'].append(self._mappingConfig[d])
+            #elif self._mappingConfig[d]["type'] == "Input.HAT"
+        self._mappingMutex.release()
+        filedir = JoystickConfig().configsDir + "/%s.json" % filename
+        json_data = open(filedir, 'w')
+        json_data.write(json.dumps(config, indent=2))
+        json_data.close()
+        logging.info("Saving config to [%s]", filename)
+        JoystickConfig().readConfigFile()
+        self.setMapping(filename)
 
 
 

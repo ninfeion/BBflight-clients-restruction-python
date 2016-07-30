@@ -1,90 +1,88 @@
 {
   "inputconfig": {
     "inputdevice": {
-      "updateperiod": 10,
       "name": "XBOX 360 For Windows (Controller)",
-      "axis": [
-        {
-          "scale": 1.0,
-          "type": "Input.AXIS",
-          "id": 2,
-          "key": "thrust",
-          "name": "thrust"
-        },
-        {
-          "scale": 1.0,
-          "type": "Input.AXIS",
-          "id": 3,
-          "key": "yaw",
-          "name": "yaw"
-        },
-        {
-          "scale": 1.0,
-          "type": "Input.AXIS",
-          "id": 0,
-          "key": "roll",
-          "name": "roll"
-        },
-        {
-          "scale": 1.0,
-          "type": "Input.AXIS",
-          "id": 1,
-          "key": "pitch",
-          "name": "pitch"
-        }
-      ],
-      "hat": [
-        {
-          "type": "Input.HAT",
-          "id": 0,
-          "key": "nouse",
-          "name": "nouse"
-        }
-      ],
       "button": [
         {
+          "name": "estop",
           "type": "Input.BUTTON",
-          "id": 4,
-          "key": "pitchNeg",
-          "name": "pitchNeg"
-        },
-        {
-          "type": "Input.BUTTON",
-          "id": 5,
-          "key": "pitchPos",
-          "name": "pitchPos"
-        },
-        {
-          "type": "Input.BUTTON",
-          "id": 1,
           "key": "estop",
-          "name": "killswitch"
+          "scale": 1.0,
+          "id": 9
         },
         {
+          "name": "rollNeg",
           "type": "Input.BUTTON",
-          "id": 2,
           "key": "rollNeg",
-          "name": "rollNeg"
+          "id": 2
         },
         {
+          "name": "pitchNeg",
           "type": "Input.BUTTON",
-          "id": 3,
-          "key": "rollPos",
-          "name": "rollPos"
+          "key": "pitchNeg",
+          "scale": 1.0,
+          "id": 0
         },
         {
+          "name": "althold",
           "type": "Input.BUTTON",
-          "id": 0,
           "key": "althold",
-          "name": "althold"
+          "scale": 1.0,
+          "id": 8
         },
         {
+          "name": "rollPos",
           "type": "Input.BUTTON",
-          "id": 6,
+          "key": "rollPos",
+          "scale": 1.0,
+          "id": 1
+        },
+        {
+          "name": "pitchPos",
+          "type": "Input.BUTTON",
+          "key": "pitchPos",
+          "scale": 1.0,
+          "id": 3
+        },
+        {
+          "name": "exitapp",
+          "type": "Input.BUTTON",
           "key": "exitapp",
-          "name": "exitapp"
+          "id": 6
         }
-      ]
+      ],
+      "updateperiod": 10,
+      "axis": [
+        {
+          "name": "thrust",
+          "type": "Input.AXIS",
+          "key": "thrust",
+          "scale": 1.0,
+          "id": 2
+        },
+        {
+          "name": "pitch",
+          "type": "Input.AXIS",
+          "key": "pitch",
+          "scale": 1.0,
+          "id": 1
+        },
+        {
+          "name": "roll",
+          "type": "Input.AXIS",
+          "key": "roll",
+          "scale": 1.0,
+          "id": 3
+        },
+        {
+          "name": "yaw",
+          "type": "Input.AXIS",
+          "key": "yaw",
+          "scale": 1.0,
+          "id": 0
+        }
+      ],
+      "hat": []
     }
   }
 }
