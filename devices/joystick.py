@@ -125,6 +125,7 @@ class JoystickReader(object):
                                     self.maxThrust - self.minThrust) * 20 + self.minThrust *20
                                 # Or:inputData['thrust'] = self.maxThrust *20 - inputData['thrust'] /(
                                 # 2000 * (self.maxThrust - self.minThrust) * 20)
+                                inputData['thrust'] = int(inputData['thrust'])
                             elif self._mappingConfig['Input.AXIS-%d'%i]['key'] == 'yaw':
                                 inputData['yaw'] = rawData[d][i] * 180
                                 trimVal = Config().get("trim_yaw")

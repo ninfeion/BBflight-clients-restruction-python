@@ -91,7 +91,7 @@ class AttitudeIndicator(QtWidgets.QWidget):
         qp.translate(-w / 2, -h / 2)
         qp.setRenderHint(qp.Antialiasing)
 
-        font = QtGui.QFont('Serif', 7, QtGui.QFont.Light)
+        font = QtGui.QFont('Serif', 10, QtGui.QFont.Light)
         qp.setFont(font)
 
         # Draw the blue

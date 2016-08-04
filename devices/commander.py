@@ -7,6 +7,7 @@ import logging
 from utils.callbacks import Caller
 from utils.periodictimer import PeriodicTimer
 
+
 class RadioDevice(object):
     def __init__(self):
         self.devName = None
@@ -36,6 +37,12 @@ class RadioDevice(object):
         self.roll = roll
         self.pitch = pitch
 
+    def setRPTrim(self, pitchNeg, pitchPos, rollNeg, rollPos):
+        self.pitchNeg = pitchNeg
+        self.pitchPos = pitchPos
+        self.rollNeg = rollNeg
+        self.rollPos = rollPos
+
     def setEStop(self, enabled):
         self.estop = enabled
 
@@ -44,6 +51,7 @@ class RadioDevice(object):
 
     def setAltHold(self, enabled):
         self.altHold = enabled
+
 
 class ImuData(object):
     yaw = 0.0
@@ -58,6 +66,7 @@ class ImuData(object):
     motor3 = 0
     motor4 = 0
 
+
 class Commander(object):
 
     def __init__(self, radiodev, serialclass):
@@ -65,8 +74,10 @@ class Commander(object):
         self._bbSerial = serialclass
         self._isXMode = False
 
-        self.comRxTimer = PeriodicTimer(0.5, self.analyzeThread)
-        self.comTxTimer = PeriodicTimer(1.0, self.comSendThread)
+        self.txEnabledMonitor = True
+
+        self.comRxTimer = PeriodicTimer(0.05, self.analyzeThread)
+        self.comTxTimer = PeriodicTimer(0.2, self.comSendThread)
 
         self.imuDataUpdate = Caller()
         self.batteryUpdate = Caller()
@@ -84,8 +95,9 @@ class Commander(object):
         if data:
             self.rawRecieveUpdate.call(data)
             try:
-                okdata = struct.unpack('<BBHfffBBBBHBBfBBBB', data)
+                okdata = struct.unpack('<BBhfffBBBBHBBf??BB', data[:32])
                 if okdata[0] == 0xaa and okdata[-1] == 0xff:
+                    self.txEnabledMonitor = True
                     imuReturnData = ImuData()
                     imuReturnData.thrust = okdata[2]
                     imuReturnData.roll = okdata[3]
@@ -96,7 +108,7 @@ class Commander(object):
                     imuReturnData.motor3 = okdata[8]
                     imuReturnData.motor4 = okdata[9]
                     batteryData = okdata[10]
-                    linkQuality = okdata[11]
+                    linkQuality = (100 - okdata[11]) #lostpacket equal to linkquality
                     resevered = okdata[12]
                     imuReturnData.broVal = okdata[13]
                     haveBro = okdata[14]
@@ -108,16 +120,23 @@ class Commander(object):
                     self.linkQualityUpdate.call(linkQuality)
                     self.flightConnectionUpdate.call(flightConnection)
             except:
-                logging.debug('Recieve Abandon')
+                logging.debug('Recieve Command Data Abandon:')
+                import binascii
+                abandonData = binascii.b2a_hex(data).decode('ascii')
+                string = ""
+                while len(abandonData):
+                    string = string + "\\x" + abandonData[:2]
+                    abandonData = abandonData[2:]
+                logging.debug(string)
 
     def comSendThread(self):
         if self._isXMode:
             roll, pitch = (0.707 * (self._radio.roll - self._radio.pitch),
                            0.707 * (self._radio.roll + self._radio.pitch))
         else:
-            roll, pitch = self._radio.roll, self._isXMode.pitch
+            roll, pitch = self._radio.roll, self._radio.pitch
 
-        dataPacket = struct.pack('<BBBBBBBBfffHBBBBBBBBBB',
+        dataPacket = struct.pack('<BBBBBBBBhfffBBBBBBBBBB',
                                  0xaa,
                                  0xaa,
                                  self._radio.devAdd[0],
@@ -140,5 +159,7 @@ class Commander(object):
                                  0x00,
                                  0xff,
                                  0xff)
-        self._bbSerial.write(dataPacket)
+        if self.txEnabledMonitor == True:
+            self._bbSerial.write(dataPacket)
+            self.txEnabledMonitor = False
 

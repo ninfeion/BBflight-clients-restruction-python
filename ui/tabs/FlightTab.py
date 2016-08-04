@@ -198,7 +198,7 @@ class FlightTab(Tab, flight_tab_class):
     def _imuUiUpdate(self, data):
         self.actualThrust.setText('%d' % data.thrust)
         self.actualPitch.setText('%0.2f' % data.pitch)
-        self.actualRoll.setText('%0.2f' % data.pitch)
+        self.actualRoll.setText('%0.2f' % data.roll)
         self.actualYaw.setText('%0.2f' % data.yaw)
 
         self.thrustProgressBar.setValue(data.thrust)

@@ -117,6 +117,8 @@ class ControllerTab(Tab, controller_tab_class):
 
         self.canConnectFromSerial = Caller()
         self.serialBrowserClear.clicked.connect(lambda : self.serialTextBrowser.clear())
+        # Set The Maximum Line Number
+        self.serialTextBrowser.document().setMaximumBlockCount(1000)
 
     def _axisSliderUpdate(self, thrust, yaw, roll, pitch):
         self.thrustAxisValue.setValue(thrust)
