@@ -6,6 +6,7 @@ import os
 from ui.widgets.attitudeIndicator import AttitudeIndicator
 from ui.tab import Tab
 from config.bbconfig import Config
+from utils.callbacks import Caller
 
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSignal
@@ -17,15 +18,11 @@ flight_tab_class = uic.loadUiType(ui.modulePath + '/tabs/flightTab.ui')[0]
 class FlightTab(Tab, flight_tab_class):
     disconnectedSignal = pyqtSignal(str)
     connectionFinishSignal = pyqtSignal(str)
-
     _imuDataUpdate = pyqtSignal(object)
-
-    #_altHoldDataUpdate = pyqtSignal(int, object)
-    #_baroDataUpdate = pyqtSignal(int, object)
-
+    # _altHoldDataUpdate = pyqtSignal(int, object)
+    # _baroDataUpdate = pyqtSignal(int, object)
     _inputDataUpdate = pyqtSignal(int, float, float, float)
     _rpTrimUpdate = pyqtSignal(float, float)
-
     _emergencyStopUpdate = pyqtSignal(bool)
 
     def __init__(self, joystick, comemiter):
@@ -84,6 +81,67 @@ class FlightTab(Tab, flight_tab_class):
             self.xModeRadioButton.setChecked(True)
         else:
             self.tenModeRadioButton.setChecked(True)
+
+        self.pidParaSetup.toggled[bool].connect(self.pidParaSetupEnabled)
+
+        self.pitchP.setText("Pitch P:" + str(Config().get("pitch_p")))
+        self.pitchI.setText("Pitch I:" + str(Config().get("pitch_i")))
+        self.pitchD.setText("Pitch D:" + str(Config().get("pitch_d")))
+        self.rollP.setText("Roll P:" + str(Config().get("roll_p")))
+        self.rollI.setText("Roll I:" + str(Config().get("roll_i")))
+        self.rollD.setText("Roll D:" + str(Config().get("roll_d")))
+        self.yawP.setText("Yaw P:" + str(Config().get("yaw_p")))
+        self.yawI.setText("Yaw I:" + str(Config().get("yaw_i")))
+        self.yawD.setText("Yaw D:" + str(Config().get("yaw_d")))
+
+        self.PGainAngle.activated.connect(self.pidTypeUpdate)
+        self.pidTypeIndexMap = {0: 'Pitch P:',
+                                1: 'Pitch I:',
+                                2: 'Pitch D:',
+                                3: 'Roll P:',
+                                4: 'Roll I:',
+                                5: 'Roll D:',
+                                6: 'Yaw P:',
+                                7: 'Yaw I:',
+                                8: 'Yaw D:'}
+        self.pidTypeLabelMap = {0: self.pitchP,
+                                1: self.pitchI,
+                                2: self.pitchD,
+                                3: self.rollP,
+                                4: self.rollI,
+                                5: self.rollD,
+                                6: self.yawP,
+                                7: self.yawI,
+                                8: self.yawD}
+
+    def pidTypeUpdate(self):
+        import re
+        self.pidTypeLabelMap[self.PGainAngle.currentIndex()].setEnabled(True)
+        readBeforeValue = self.pidTypeLabelMap[self.PGainAngle.currentIndex()].text()
+        readBeforeValue = re.search(r':-?[1-9]\d+$|:-?[0-9]$', readBeforeValue)
+        if readBeforeValue:
+            readBeforeValue = readBeforeValue.group(0)[1:]
+        self.PGainSet.setValue(int(readBeforeValue))
+
+    def pidParaSetupEnabled(self, par):
+        # self.labelPGain.setEnabled(par)
+        # self.labelIGain.setEnabled(par)
+        # self.labelDGain.setEnabled(par)
+        self.PGainAngle.setEnabled(par)
+        # self.IGainAngle.setEnabled(par)
+        # self.DGainAngle.setEnabled(par)
+        self.PGainSet.setEnabled(par)
+        # self.IGainSet.setEnabled(par)
+        # self.DGainSet.setEnabled(par)
+        # self.pitchP.setEnabled(par)
+        # self.pitchI.setEnabled(par)
+        # self.pitchD.setEnabled(par)
+        # self.rollP.setEnabled(par)
+        # self.rollI.setEnabled(par)
+        # self.rollD.setEnabled(par)
+        # self.yawP.setEnabled(par)
+        # self.yawI.setEnabled(par)
+        # self.yawD.setEnabled(par)
 
     def yawOffsetSetting(self, par):
         Config().set("trim_yaw", par)
@@ -177,8 +235,8 @@ class FlightTab(Tab, flight_tab_class):
         self.maxYawAngle.setEnabled(STATE)
         self.maxThrust.setEnabled(STATE)
         self.minThrust.setEnabled(STATE)
-        #self.slewLimit.setEnabled(STATE)
-        #self.thrustLoweringSlewRate.setEnabled(STATE)
+        # self.slewLimit.setEnabled(STATE)
+        # self.thrustLoweringSlewRate.setEnabled(STATE)
         # TODO: Because i don't how to programe there two function,so disable it
 
     def _inputDataUIUpdate(self, thrust, yaw, roll, pitch):

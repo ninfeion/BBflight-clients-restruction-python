@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .flightTab import FlightTab
-from .controllerTab import ControllerTab
+from .FlightTab import FlightTab
+from .ControllerTab import ControllerTab
 
 __author__ = 'Ninfeion'
 __all__ = []

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 import serial
 import logging
 import binascii
@@ -159,8 +160,6 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         self.slaveConnectionState.connect(self.slaveConnectRespond)
         self.bbCommander.flightConnectionUpdate.add_callback(self.slaveConnectionState.emit)
 
-
-
         # Set Menu Bar
         self.actionSaveConfig.triggered.connect(self.saveClientConfig)
         self.actionAbout.triggered.connect(self.aboutBBFlight)
@@ -181,6 +180,24 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
             self.canConnect_Serial.emit)
         self.serialRawDataShow.connect(self.serialBrowserUpdate)
         self.bbCommander.rawRecieveUpdate.add_callback(self.serialRawDataShow.emit)
+
+        self.loadedTabs['Flight Control'].PGainSet.valueChanged[int].connect(self.pidSetupMethod)
+        self.loadedTabs['Flight Control'].thrustProgressBar.setStyleSheet(progressbar_stylesheet(COLORBLUE))
+        self.loadedTabs['Flight Control'].m1ProgressBar.setStyleSheet(progressbar_stylesheet(COLORBLUE))
+        self.loadedTabs['Flight Control'].m2ProgressBar.setStyleSheet(progressbar_stylesheet(COLORBLUE))
+        self.loadedTabs['Flight Control'].m3ProgressBar.setStyleSheet(progressbar_stylesheet(COLORBLUE))
+        self.loadedTabs['Flight Control'].m4ProgressBar.setStyleSheet(progressbar_stylesheet(COLORBLUE))
+
+    def pidSetupMethod(self, val):
+        self.loadedTabs['Flight Control'].pidTypeLabelMap[
+            self.loadedTabs['Flight Control'].PGainAngle.currentIndex()].setEnabled(True)
+
+        pidtype = self.loadedTabs['Flight Control'].PGainAngle.currentIndex()
+        self.loadedTabs['Flight Control'].pidTypeLabelMap[pidtype].setText(
+            self.loadedTabs['Flight Control'].pidTypeIndexMap[pidtype] + str(val))
+        self.bbFlight.pidSetup(pidtype + 1, val)
+        logging.debug("Pid Parameter Change: %s,%d" % (
+            self.loadedTabs['Flight Control'].pidTypeIndexMap[pidtype],val))
 
     def slaveConnectRespond(self, par):
         pass
@@ -218,7 +235,8 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         while len(willshow):
             string = string + "\\x" + willshow[:2]
             willshow = willshow[2:]
-        self.loadedTabs['Interface Setting'].serialTextBrowser.append(string)
+        self.loadedTabs['Interface Setting'].serialTextBrowser.append(time.strftime(
+            "%H:%M:%S", time.localtime()) + ':\n' + string)
 
     def connectReady(self, par):
         if par:
@@ -238,13 +256,13 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
             self._connectState = ConnectedState.NOTCONNECTALLOW
 
     def batteryUiValSet(self, val):
-        if val >= 3.6:
+        if val >= 3600:
             self._batteryState = BatteryState.GOOD
             color = COLORGREEN
-        elif 3.3 <= val < 3.6:
+        elif 3300 <= val < 3600:
             self._batteryState = BatteryState.MIDDLE
             color = COLORBLUE
-        elif val < 3.3:
+        elif val < 3300:
             self._batteryState = BatteryState.LOW
             color = COLORRED
         else:

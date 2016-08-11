@@ -96,24 +96,24 @@ class ControllerTab(Tab, controller_tab_class):
         self.flowControlSet.currentIndexChanged[int].connect(self.serialFlowControlSet)
 
         self.baudRateSet.setCurrentIndex((lambda ite: 0 if ite == '9600' else
-                                                     1 if ite == '19200' else
-                                                     2 if ite == '38400' else
-                                                     3 )(Config().get("serial_baudrate")))
+                                                      1 if ite == '19200' else
+                                                      2 if ite == '38400' else
+                                                      3 )(Config().get("serial_baudrate")))
         self.dataBitsSet.setCurrentIndex((lambda ite: 0 if ite == '8' else
-                                                     1 if ite == '7' else
-                                                     2 if ite == '6' else
-                                                     3 )(Config().get("serial_bytesize")))
+                                                      1 if ite == '7' else
+                                                      2 if ite == '6' else
+                                                      3 )(Config().get("serial_bytesize")))
         self.paritySet.setCurrentIndex((lambda ite: 0 if ite == 'None' else
-                                                   1 if ite == 'Even' else
-                                                   2 if ite == 'Odd' else
-                                                   3 if ite == 'Mark' else
-                                                   4 )(Config().get("serial_parity")))
+                                                    1 if ite == 'Even' else
+                                                    2 if ite == 'Odd' else
+                                                    3 if ite == 'Mark' else
+                                                    4 )(Config().get("serial_parity")))
         self.stopBitsSet.setCurrentIndex((lambda ite: 0 if ite == '1' else
-                                                     1 if ite == '1.5' else
-                                                     2 )(Config().get("serial_stopbits")))
+                                                      1 if ite == '1.5' else
+                                                      2 )(Config().get("serial_stopbits")))
         self.flowControlSet.setCurrentIndex((lambda ite: 0 if ite == 'None' else
-                                                        1 if ite == 'RTS/CTS' else
-                                                        2 )(Config().get("serial_flowcontrol")))
+                                                         1 if ite == 'RTS/CTS' else
+                                                         2 )(Config().get("serial_flowcontrol")))
 
         self.canConnectFromSerial = Caller()
         self.serialBrowserClear.clicked.connect(lambda : self.serialTextBrowser.clear())

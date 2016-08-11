@@ -261,17 +261,188 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>PID Parameters Setup</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="2" column="2">
+           <widget class="QLabel" name="yawP">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QLabel" name="yawD">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="rollP">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="pidParaSetup">
+            <property name="text">
+             <string>Enabled</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="2">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="pitchD">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="pitchP">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="pitchI">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="yawI">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="rollI">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLabel" name="rollD">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QComboBox" name="PGainAngle">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <item>
+             <property name="text">
+              <string>Pitch P</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Pitch I</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Pitch D</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Roll P</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Roll I</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Roll D</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Yaw P</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Yaw I</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Yaw D</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="QSpinBox" name="PGainSet">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimum">
+             <number>-100</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -424,7 +595,7 @@
                  <number>0</number>
                 </property>
                 <property name="textVisible">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
@@ -476,7 +647,7 @@
                  <number>24</number>
                 </property>
                 <property name="textVisible">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
@@ -513,7 +684,7 @@
                  <number>0</number>
                 </property>
                 <property name="textVisible">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
@@ -529,7 +700,7 @@
                  <number>0</number>
                 </property>
                 <property name="textVisible">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>

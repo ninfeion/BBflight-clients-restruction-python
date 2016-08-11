@@ -9,13 +9,14 @@ from utils.periodictimer import PeriodicTimer
 
 
 class RadioDevice(object):
+
     def __init__(self):
         self.devName = None
         self.devAdd  = [0xff,
-                         0xff,
-                         0xff,
-                         0xff,
-                         0xff]
+                        0xff,
+                        0xff,
+                        0xff,
+                        0xff]
         self.estop = False
 
         self.thrust = 0
@@ -30,6 +31,15 @@ class RadioDevice(object):
 
         self.altHold = False
         self.tryConnect = False
+
+        self.pidType = 0
+        self.pidPar  = 0
+        # Type  Disabled PP PI PD RP RI RD YP YI YD
+        # Value 0        1  2  3  4  5  6  7  8  9
+
+    def pidSetup(self, type, par):
+        self.pidType = type
+        self.pidPar = par
 
     def setControlPar(self, thrust, yaw, roll, pitch):
         self.thrust = thrust
@@ -54,6 +64,7 @@ class RadioDevice(object):
 
 
 class ImuData(object):
+
     yaw = 0.0
     pitch = 0.0
     roll = 0.0
@@ -136,7 +147,7 @@ class Commander(object):
         else:
             roll, pitch = self._radio.roll, self._radio.pitch
 
-        dataPacket = struct.pack('<BBBBBBBBhfffBBBBBBBBBB',
+        dataPacket = struct.pack('<BBBBBBBBhfffBBbbbbBbBB',
                                  0xaa,
                                  0xaa,
                                  self._radio.devAdd[0],
@@ -155,11 +166,11 @@ class Commander(object):
                                  self._radio.pitchPos,
                                  self._radio.rollNeg,
                                  self._radio.rollPos,
-                                 0x00,
-                                 0x00,
+                                 self._radio.pidType,  # pid Type
+                                 self._radio.pidPar,   # pid Parameters
                                  0xff,
                                  0xff)
-        if self.txEnabledMonitor == True:
+        if self.txEnabledMonitor:
             self._bbSerial.write(dataPacket)
             self.txEnabledMonitor = False
 
