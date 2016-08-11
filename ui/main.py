@@ -196,7 +196,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         self.loadedTabs['Flight Control'].pidTypeLabelMap[pidtype].setText(
             self.loadedTabs['Flight Control'].pidTypeIndexMap[pidtype] + str(val))
         self.bbFlight.pidSetup(pidtype + 1, val)
-        logging.debug("Pid Parameter Change: %s,%d" % (
+        logging.debug("Pid Parameter Change: %s%d" % (
             self.loadedTabs['Flight Control'].pidTypeIndexMap[pidtype],val))
 
     def slaveConnectRespond(self, par):
